@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Browser</title>
+<script src="data.js"></script>
+
+<style>
+body{margin:0;background:#0d0d0d;color:white;font-family:Arial;}
+.container{padding:15px;margin-bottom:60px;}
+.item{margin-bottom:15px;background:#1a1a1a;padding:10px;border-radius:10px;}
+.item img{width:100%;border-radius:8px;}
+.nav{position:fixed;bottom:0;width:100%;background:#111;display:flex;justify-content:space-around;padding:10px;}
+.nav a{color:white;text-decoration:none;}
+</style>
+</head>
+<body>
+
+<div class="container" id="browserContainer"></div>
+
+<div class="nav">
+<a href="index.html">Home</a>
+<a href="browser.html">Browser</a>
+<a href="profile.html">Profile</a>
+<a href="support.html">Support</a>
+</div>
+
+<script>
+const container=document.getElementById("browserContainer");
+
+for(let code in videos){
+container.innerHTML+=`
+<div class="item">
+<a href="index.html?code=${code}" style="color:white;text-decoration:none;">
+<img src="${videos[code].image}">
+<p>${videos[code].title}</p>
+</a>
+</div>`;
+}
+</script>
+
+</body>
+</html>
