@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENJOY ALL</title>
+
+<script src="data.js"></script>
+
+<style>
+body{
+margin:0;
+background:#0d0000;
+font-family:Arial, sans-serif;
+color:white;
+}
+
+.header{
+background:#1a0000;
+padding:15px;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+color:#ff1a1a;
+}
+
+.search-box{
+text-align:center;
+padding:15px;
+}
+
+.search-box input{
+padding:10px;
+width:60%;
+border:none;
+border-radius:6px;
+}
+
+.search-box button{
+padding:10px 15px;
+background:#ff0000;
+border:none;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+.container{
+padding:15px;
+text-align:center;
+}
+
+.card{
+background:#1a0000;
+padding:15px;
+border-radius:10px;
+}
+
+.card img{
+width:100%;
+border-radius:10px;
+}
+
+button{
+padding:10px 15px;
+background:#ff0000;
+border:none;
+color:white;
+border-radius:6px;
+margin-top:10px;
+cursor:pointer;
+}
+
+.hidden{
+display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+ENJOY ALL
+</div>
+
+<!-- 🔍 Search -->
+<div class="search-box">
+<input type="text" id="searchInput" placeholder="Enter Code (EA40)">
+<button onclick="searchVideo()">Search</button>
+</div>
+
+<div class="container" id="videoContainer">
+</div>
+
+<script>
+
+const urlParams = new URLSearchParams(window.location.search);
+const code = urlParams.get("code");
+
+function loadVideo(code){
+if(videos[code]){
+let views = localStorage.getItem(code) || 0;
+views++;
+localStorage.setItem(code, views);
+
+document.getElementById("videoContainer").innerHTML = `
+<div class="card">
+<h2>${videos[code].title}</h2>
+<img src="${videos[code].image}">
+<p>Views: ${views}</p>
+
+<button onclick="unlockAds('${code}')">Unlock Access (4)</button>
+
+<div id="playSection" class="hidden">
+<button onclick="playVideo('${videos[code].final}')">Play Video</button>
+</div>
+</div>
+`;
+}
+else{
+document.getElementById("videoContainer").innerHTML =
+"<h3>Video Not Found</h3>";
+}
+}
+
+function unlockAds(code){
+alert("Ad 1");
+alert("Ad 2");
+alert("Ad 3");
+alert("Ad 4");
+
+document.getElementById("playSection").classList.remove("hidden");
+}
+
+function playVideo(link){
+window.location.href = link;
+}
+
+function searchVideo(){
+const code = document.getElementById("searchInput").value.trim().toUpperCase();
+if(code){
+window.location.href = "?code=" + code;
+}
+}
+
+if(code){
+loadVideo(code);
+}
+
+</script>
+
+</body>
+</html>
