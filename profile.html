@@ -1,14 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="bn">
 <head>
-<title>Profile</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body{background:#0d0d0d;color:white;font-family:Arial;text-align:center;padding:50px;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - ENJOY ALL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin:0; background:#0d0d0d; color:white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        .profile-container { padding: 20px; padding-bottom: 100px; max-width: 500px; margin: auto; }
+
+        /* Header / Profile Info */
+        .user-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; margin-top: 10px; }
+        .avatar-wrapper { position: relative; }
+        .profile-img { width: 80px; height: 80px; border-radius: 50%; border: 2px solid #ff0000; object-fit: cover; background: #222; }
+        .user-info h2 { margin: 0; font-size: 20px; display: flex; align-items: center; gap: 5px; }
+        .verified-icon { color: #1da1f2; font-size: 16px; }
+        .user-info p { margin: 5px 0 0; color: #aaa; font-size: 13px; }
+
+        /* Wallet Section */
+        .wallet-card { background: #1a1a1a; padding: 20px; border-radius: 15px; border: 1px solid #333; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .wallet-info span { color: #aaa; font-size: 12px; display: block; margin-bottom: 5px; }
+        .wallet-info h3 { margin: 0; font-size: 22px; color: #ffcc00; }
+        .status-badge { background: #333; padding: 5px 12px; border-radius: 20px; font-size: 12px; color: #eee; }
+
+        /* Action Grid (Top-up, Buy Premium, etc.) */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px; }
+        .action-item { background: #1a1a1a; padding: 15px 5px; border-radius: 12px; text-align: center; border: 1px solid #222; cursor: pointer; }
+        .action-item i { font-size: 20px; margin-bottom: 8px; display: block; }
+        .action-item span { font-size: 11px; color: #eee; }
+        .ic-topup { color: #ff4d4d; }
+        .ic-premium { color: #ffcc00; }
+        .ic-redeem { color: #ff4d4d; }
+
+        /* Section Titles */
+        .section-title { font-size: 15px; font-weight: bold; margin-bottom: 15px; border-left: 3px solid #ff0000; padding-left: 10px; }
+
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+        .stat-item { background: #1a1a1a; padding: 15px; border-radius: 15px; border: 1px solid #222; text-align: center; }
+        .stat-item i { font-size: 24px; color: #ff4d4d; margin-bottom: 10px; display: block; }
+        .stat-item h4 { margin: 0; font-size: 18px; }
+        .stat-item span { font-size: 11px; color: #aaa; text-transform: uppercase; margin-top: 5px; display: block; }
+
+        /* Login Button */
+        .login-btn { background: #0088cc; color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; margin-bottom: 20px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; }
+
+        /* Nav Bar */
+        .nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #111; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #222; z-index: 1000; }
+        .nav a { color: #aaa; text-decoration: none; font-size: 12px; text-align: center; }
+        .nav a i { font-size: 20px; display: block; margin-bottom: 5px; }
+        .nav a.active { color: #ff0000; }
+    </style>
 </head>
 <body>
-<h2>User Profile</h2>
-<p>Coming Soon...</p>
+
+    <div class="profile-container">
+        
+        <div id="userProfile" class="user-header">
+            <div class="avatar-wrapper">
+                <img id="userImg" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="profile-img">
+            </div>
+            <div class="user-info">
+                <h2 id="userName">Guest User <i class="fas fa-check-circle verified-icon"></i></h2>
+                <p id="userJoinDate">Join: Not Logged In</p>
+            </div>
+        </div>
+
+        <button id="loginBtn" class="login-btn" onclick="telegramLogin()">
+            <i class="fab fa-telegram"></i> Login with Telegram
+        </button>
+
+        <div class="wallet-card">
+            <div class="wallet-info">
+                <span>Wallet Balance</span>
+                <h3>৳ 0.00</h3>
+            </div>
+            <div class="status-badge">Status: Free</div>
+        </div>
+
+        <div class="action-grid">
+            <div class="action-item">
+                <i class="fas fa-wallet ic-topup"></i>
+                <span>Top-up</span>
+            </div>
+            <div class="action-item">
+                <i class="fas fa-star ic-premium"></i>
+                <span>Buy Premium</span>
+            </div>
+            <div class="action-item">
+                <i class="fas fa-gift ic-redeem"></i>
+                <span>Redeem Code</span>
+            </div>
+        </div>
+
+        <div class="section-title">Community Stats</div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <i class="fas fa-users"></i>
+                <h4>10.7K</h4>
+                <span>Total Users</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-chart-line"></i>
+                <h4>1.1K</h4>
+                <span>Active Today</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-video"></i>
+                <h4>232</h4>
+                <span>Total Videos</span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-eye"></i>
+                <h4>3.1M</h4>
+                <span>Total Views</span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="nav">
+        <a href="index.html"><i class="fas fa-home"></i>Home</a>
+        <a href="browser.html"><i class="fas fa-th-large"></i>Browser</a>
+        <a href="profile.html" class="active"><i class="fas fa-user"></i>Profile</a>
+        <a href="support.html"><i class="fas fa-headset"></i>Support</a>
+    </div>
+
+    <script>
+        // সিম্পল টেলিগ্রাম লগইন সিমুলেশন
+        function telegramLogin() {
+            // আসল টেলিগ্রাম লগইন উইজেট ইন্টিগ্রেট করতে হলে অফিসিয়াল কোড লাগে
+            // এখনকার জন্য আমরা একটি ডেমো ডাটা সেভ করছি
+            const demoUser = {
+                name: "Tiktok User",
+                joinDate: "Joined: Jan 13, 2026",
+                img: "https://i.ibb.co/v3m8h0n/avatar.jpg" // আপনার স্ক্রিনশটের মত কোনো ছবি দিন
+            };
+
+            localStorage.setItem("userLoggedIn", "true");
+            localStorage.setItem("userData", JSON.stringify(demoUser));
+            
+            checkLogin();
+            alert("Logged in successfully!");
+        }
+
+        function checkLogin() {
+            const isLoggedIn = localStorage.getItem("userLoggedIn");
+            const userData = JSON.parse(localStorage.getItem("userData"));
+
+            if (isLoggedIn === "true" && userData) {
+                document.getElementById("userName").innerHTML = userData.name + ' <i class="fas fa-check-circle verified-icon"></i>';
+                document.getElementById("userJoinDate").innerText = userData.joinDate;
+                document.getElementById("userImg").src = userData.img;
+                document.getElementById("loginBtn").style.display = "none";
+            }
+        }
+
+        // পেজ লোড হলে চেক করবে লগইন করা আছে কি না
+        window.onload = checkLogin;
+    </script>
 </body>
 </html>
