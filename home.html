@@ -1,153 +1,219 @@
 <!DOCTYPE html>
-<html>
+<html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ENJOY ALL</title>
+    <script src="config.js"></script> <script src="database.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ENJOY ALL - Home</title>
+    <meta name="theme-color" content="#050505">
+    
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-<script src="data.js"></script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHNlMGgJAl8gIrWl30n3MYqmxpQDUZ4rs",
+            authDomain: "enjoy-all-bot-data.firebaseapp.com",
+            projectId: "enjoy-all-bot-data",
+            storageBucket: "enjoy-all-bot-data.firebasestorage.app",
+            messagingSenderId: "731788215299",
+            appId: "1:731788215299:web:76eecfd79e78948133ba36",
+            databaseURL: "https://enjoy-all-bot-data-default-rtdb.firebaseio.com"
+        };
 
-<style>
-body{
-margin:0;
-background:#0d0000;
-font-family:Arial, sans-serif;
-color:white;
-}
-
-.header{
-background:#1a0000;
-padding:15px;
-text-align:center;
-font-size:22px;
-font-weight:bold;
-color:#ff1a1a;
-}
-
-.search-box{
-text-align:center;
-padding:15px;
-}
-
-.search-box input{
-padding:10px;
-width:60%;
-border:none;
-border-radius:6px;
-}
-
-.search-box button{
-padding:10px 15px;
-background:#ff0000;
-border:none;
-color:white;
-border-radius:6px;
-cursor:pointer;
-}
-
-.container{
-padding:15px;
-text-align:center;
-}
-
-.card{
-background:#1a0000;
-padding:15px;
-border-radius:10px;
-}
-
-.card img{
-width:100%;
-border-radius:10px;
-}
-
-button{
-padding:10px 15px;
-background:#ff0000;
-border:none;
-color:white;
-border-radius:6px;
-margin-top:10px;
-cursor:pointer;
-}
-
-.hidden{
-display:none;
-}
-</style>
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        window.db = db;
+        window.ref = ref;
+        window.runTransaction = runTransaction;
+        window.onValue = onValue;
+    </script>
+    
+    <script src="https://sad.adsgram.ai/js/sdk.js"></script>
+    <script>(function(s){s.dataset.zone='10679138',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <script src='//libtl.com/sdk.js' data-zone='10480960' data-sdk='show_10480960'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10679278' data-sdk='show_10679278'></script>
+    <script src='//libtl.com/sdk.js' data-zone='10679295' data-sdk='show_10679295'></script>
+    
+    <style>
+    /* আপনার আগের সব ডিজাইন (CSS) হুবহু এখানে রাখা হয়েছে */
+    * { -webkit-user-select: none !important; -ms-user-select: none !important; user-select: none !important; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; background: #050505; font-family: 'Segoe UI', Arial, sans-serif; color: white; scroll-behavior: smooth; overflow-x: hidden; touch-action: pan-y; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(10, 10, 10, 0.9); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(15px); border-bottom: 1px solid #222; }
+    .logo { font-size: 22px; font-weight: bold; color: #ff0000; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255,0,0,0.5); display: inline-block; animation: logoElastic 3.5s ease-in-out infinite; }
+    @keyframes logoElastic { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15) rotate(-3deg); color: #ffffff; } }
+    .search { padding: 10px 15px; border-radius: 25px; border: 2.5px solid #333; background: #1a1a1a; color: white; width: 45%; outline: none; animation: rainbowBorder 4s linear infinite; }
+    @keyframes rainbowBorder { 0%, 100% { border-color: #ff0000; } 50% { border-color: #00ffff; } }
+    .cat-btn.active { border: none !important; position: relative; background: #111 !important; transform: scale(1.08); z-index: 1; overflow: hidden; }
+    .cat-btn.active::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(#ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); animation: rotateRunningLight 3s linear infinite; z-index: -2; }
+    .cat-btn.active::after { content: ''; position: absolute; inset: 2.5px; background: #111; border-radius: 30px; z-index: -1; }
+    @keyframes rotateRunningLight { 100% { transform: rotate(360deg); } }
+    .neon-highlight-card { animation: neonPulsate 1.5s infinite alternate; border: 3px solid #ff0000 !important; transform: scale(1.03); }
+    @keyframes neonPulsate { 0% { box-shadow: 0 0 20px #ff0000; } 100% { box-shadow: 0 0 20px #00ffff; } }
+    .container { padding: 15px; margin-bottom: 80px; }
+    .section-title { font-size: 18px; margin: 25px 0 15px; border-left: 4px solid #ff0000; padding-left: 12px; font-weight: bold; }
+    .slider-container { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 15px; scrollbar-width: none; }
+    .slide-card { min-width: 135px; height: 195px; position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #333; flex-shrink: 0; }
+    .slide-card img { width: 100%; height: 100%; object-fit: cover; }
+    .video-grid { display: grid; grid-template-columns: 1fr; gap: 30px; max-width: 500px; margin: auto; }
+    .card { background: #121212; border-radius: 20px; overflow: hidden; border: 1px solid #252525; }
+    .button { padding: 14px; background: linear-gradient(90deg, #ff0000, #800000); border: none; color: white; width: 100%; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; }
+    .nav { position: fixed; bottom: 0; width: 100%; background: rgba(10, 10, 10, 0.95); display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #222; }
+    .nav a { color: #555; text-decoration: none; font-size: 12px; }
+    .nav a.active { color: #ff0000; }
+    </style>
 </head>
-
-<body>
+<body oncontextmenu="return false;" onkeydown="return false;">
 
 <div class="header">
-ENJOY ALL
+    <div class="logo">ENJOY ALL</div>
+    <input type="text" class="search" placeholder="Search Code..." id="searchInput">
 </div>
 
-<!-- 🔍 Search -->
-<div class="search-box">
-<input type="text" id="searchInput" placeholder="Enter Code (EA40)">
-<button onclick="searchVideo()">Search</button>
+<div class="container">
+    <div id="searchResult"></div>
+    <div id="featuredArea">
+        <div class="section-title">Featured <span style="float:right; font-size:11px; color:#666;">Top 15 New</span></div>
+        <div class="slider-container" id="topSlider"></div>
+    </div>
+    <div class="section-title">Categories</div>
+    <div class="cat-box" style="display: flex; gap: 12px; overflow-x: auto; padding: 10px 5px;">
+        <button class="cat-btn active" onclick="filterCat('all', this)">All Episodes</button>
+        <button class="cat-btn" onclick="filterCat('tiktok', this)">TikTok Viral</button>
+        <button class="cat-btn" onclick="filterCat('others', this)">Others Link</button>
+    </div>
+
+    <div id="selectedCatName" class="active-cat-title" style="text-align: center; font-size: 22px; color: #ff0000; margin: 15px 0;">ALL EPISODES</div>
+    <div class="video-grid" id="allVideos"></div>
 </div>
 
-<div class="container" id="videoContainer">
+<div class="nav">
+    <a href="index.html" class="active">🏠 Home</a>
+    <a href="browser.html">🌐 Browser</a>
+    <a href="profile.html">👤 Profile</a>
+    <a href="support.html">🛠 Support</a>
 </div>
 
 <script>
+// --- গ্লোবাল ভেরিয়েবল ---
+let adCounts = {};
+const tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
 
-const urlParams = new URLSearchParams(window.location.search);
-const code = urlParams.get("code");
+// --- প্রধান আনলক লজিক (config.js এর লজিক অনুযায়ী) ---
+function startUnlock(code) {
+    if (!adCounts[code]) adCounts[code] = AD_CONFIG.requiredAdCount;
+    const btn = document.getElementById(`btn-${code}`) || document.getElementById(`btn-s-${code}`);
+    
+    // বর্তমানে কত নম্বর অ্যাড চলছে
+    const currentAdNumber = (AD_CONFIG.requiredAdCount - adCounts[code]) + 1;
 
-function loadVideo(code){
-if(videos[code]){
-let views = localStorage.getItem(code) || 0;
-views++;
-localStorage.setItem(code, views);
+    // ৩-রোটেশন লজিক (Adsgram -> Monetag -> Direct Link)
+    let rotationPos = currentAdNumber % 3;
 
-document.getElementById("videoContainer").innerHTML = `
-<div class="card">
-<h2>${videos[code].title}</h2>
-<img src="${videos[code].image}">
-<p>Views: ${views}</p>
-
-<button onclick="unlockAds('${code}')">Unlock Access (4)</button>
-
-<div id="playSection" class="hidden">
-<button onclick="playVideo('${videos[code].final}')">Play Video</button>
-</div>
-</div>
-`;
-}
-else{
-document.getElementById("videoContainer").innerHTML =
-"<h3>Video Not Found</h3>";
-}
-}
-
-function unlockAds(code){
-alert("Ad 1");
-alert("Ad 2");
-alert("Ad 3");
-alert("Ad 4");
-
-document.getElementById("playSection").classList.remove("hidden");
-}
-
-function playVideo(link){
-window.location.href = link;
-}
-
-function searchVideo(){
-const code = document.getElementById("searchInput").value.trim().toUpperCase();
-if(code){
-window.location.href = "?code=" + code;
-}
+    if (rotationPos === 1) {
+        // ১. Adsgram ভিডিও অ্যাড
+        const randomId = AD_CONFIG.adsgramIds[Math.floor(Math.random() * AD_CONFIG.adsgramIds.length)];
+        if (window.Adsgram) {
+            window.Adsgram.init({ blockId: randomId }).show()
+                .then(() => handleAds(code, btn))
+                .catch(() => alert("ভিডিও অ্যাডটি পুরোপুরি দেখুন!"));
+        } else { handleAds(code, btn); }
+    } 
+    else if (rotationPos === 2) {
+        // ২. Monetag SDK (15s Ad)
+        const zone = AD_CONFIG.monetagZones[Math.floor(Math.random() * AD_CONFIG.monetagZones.length)];
+        if (typeof window[`show_${zone}`] === 'function') {
+            window[`show_${zone}`]().then(() => handleAds(code, btn)).catch(() => handleAds(code, btn));
+        } else { handleAds(code, btn); }
+    } 
+    else {
+        // ০ বা ৩. Direct Link (যদি অন থাকে তবে ওপেন হবে, অফ থাকলে ভিডিও দেখাবে)
+        if (AD_CONFIG.isDirectLinkEnabled) {
+            window.open(AD_CONFIG.myDirectLink, '_blank');
+            handleAds(code, btn);
+        } else {
+            // ডিরেক্ট লিঙ্ক অফ থাকলে ব্যাকআপ হিসেবে Adsgram দেখাবে
+            const randomId = AD_CONFIG.adsgramIds[0];
+            if (window.Adsgram) {
+                window.Adsgram.init({ blockId: randomId }).show().then(() => handleAds(code, btn));
+            } else { handleAds(code, btn); }
+        }
+    }
 }
 
-if(code){
-loadVideo(code);
+function handleAds(code, btn) {
+    adCounts[code]--;
+    if (adCounts[code] > 0) {
+        btn.innerText = `🔒 UNLOCK (${adCounts[code]} ADS LEFT)`;
+    } else {
+        // Firebase এ ভিউ কাউন্ট আপডেট
+        if(window.db) {
+            window.runTransaction(window.ref(window.db, `stats/${code}`), (data) => {
+                if (!data) data = { v: 0, down: 0, l: 0, d: 0 };
+                data.v = (data.v || 0) + 1;
+                data.down = (data.down || 0) + 1;
+                return data;
+            });
+        }
+        btn.innerText = "▶ PLAY VIDEO";
+        btn.style.background = "linear-gradient(90deg, #28a745, #1e7e34)";
+        btn.onclick = () => { window.location.href = videos[code].final; };
+    }
 }
 
+// --- আপনার আগের সব সাপোর্টিং ফাংশন (টাইমিং, ভোট, সার্চ) ---
+function timeAgo(dateString) {
+    const now = new Date(); const past = new Date(dateString);
+    const diff = Math.floor((now - past) / 1000);
+    if (isNaN(past)) return dateString;
+    if (diff < 60) return "Just Now";
+    if (diff < 3600) return Math.floor(diff / 60) + " mins ago";
+    if (diff < 86400) return Math.floor(diff / 3600) + " hours ago";
+    return past.toLocaleDateString('en-GB');
+}
+
+function triggerSearch(val) {
+    const resultDiv = document.getElementById("searchResult");
+    if (typeof videos === 'undefined') return;
+    const searchVal = val.trim().toUpperCase();
+    if (!searchVal || !videos[searchVal]) { resultDiv.style.display = "none"; return; }
+    resultDiv.style.display = "block";
+    const v = videos[searchVal];
+    resultDiv.innerHTML = `<div class='card neon-highlight-card' id='search-card-${searchVal}' style='margin-bottom:30px;'><div class="card-img-box"><img src="${v.image}" style="width:100%;"></div><div class='card-info'><h3>${v.title}</h3><button class='button' onclick="startUnlock('${searchVal}')" id="btn-s-${searchVal}">🔒 UNLOCK (${AD_CONFIG.requiredAdCount} ADS)</button></div></div>`;
+    resultDiv.scrollIntoView({ behavior: 'smooth' });
+}
+
+function filterCat(type, btn) {
+    if(btn) {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById("selectedCatName").innerText = btn.innerText.toUpperCase();
+    }
+    const grid = document.getElementById("allVideos");
+    grid.innerHTML = "";
+    Object.keys(videos).forEach(code => {
+        const v = videos[code];
+        if (type === 'all' || v.cat === type) {
+            grid.insertAdjacentHTML('beforeend', `<div class="card" id="card-${code}"><img src="${v.image}" loading="lazy"><div class="card-info"><h3>${v.title}</h3><div class="meta-row" style="display:flex; justify-content:space-between; font-size:11px; color:#888; margin:10px 0;"><span>📅 ${timeAgo(v.date + " " + (v.time || ""))}</span><span class="id-badge"># ID: ${code}</span></div><button class="button" onclick="startUnlock('${code}')" id="btn-${code}">🔒 UNLOCK (${AD_CONFIG.requiredAdCount} ADS)</button></div></div>`);
+        }
+    });
+}
+
+function init() {
+    const topSlider = document.getElementById("topSlider");
+    if (topSlider) {
+        Object.keys(videos).slice(0, 15).forEach(code => {
+            topSlider.innerHTML += `<div class="slide-card" onclick="startUnlock('${code}')"><img src="${videos[code].image}"><div class="overlay" style="position:absolute; bottom:0; padding:10px; background:rgba(0,0,0,0.6); width:100%;"><p style="font-size:10px; margin:0;">${videos[code].title}</p></div></div>`;
+        });
+    }
+    filterCat('all', document.querySelector('.cat-btn'));
+}
+
+let checkFirebase = setInterval(() => { if (window.db && typeof videos !== 'undefined') { clearInterval(checkFirebase); init(); } }, 500);
+document.getElementById("searchInput").addEventListener("input", function() { triggerSearch(this.value); });
 </script>
-
 </body>
 </html>
