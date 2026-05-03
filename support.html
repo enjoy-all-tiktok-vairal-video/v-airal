@@ -1,27 +1,197 @@
 <!DOCTYPE html>
-<html>
+<html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Support</title>
-<style>
-body{margin:0;background:#0f0f0f;color:white;font-family:sans-serif;text-align:center}
-.card{margin:15px;padding:15px;background:#1c1c1c;border-radius:12px}
-a{color:white;text-decoration:none}
-nav{position:fixed;bottom:0;width:100%;background:#111;display:flex;justify-content:space-around;padding:10px 0}
-nav a{color:white;text-decoration:none}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Support & Groups - ENJOY ALL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #D4AF37; /* মেটালিক গোল্ড */
+            --secondary: #FFD700; /* উজ্জ্বল গোল্ড */
+            --bg-dark: #050505;
+        }
+
+        body { 
+            margin: 0; 
+            background: var(--bg-dark); 
+            color: white; 
+            font-family: 'Poppins', sans-serif; 
+            overflow-x: hidden;
+        }
+
+        /* সাপোর্ট হেডার */
+        .support-header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(to bottom, rgba(212, 175, 55, 0.1), transparent);
+        }
+
+        .support-header i {
+            font-size: 50px;
+            color: var(--secondary);
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .support-header h2 {
+            margin: 0;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .support-header p {
+            color: #aaa;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .backup-wrapper {
+            max-width: 480px;
+            margin: 0 auto 100px;
+            padding: 15px;
+        }
+
+        .section-title {
+            text-align: center;
+            color: var(--secondary);
+            margin-bottom: 25px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            padding-bottom: 10px;
+        }
+
+        .backup-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* প্রিমিয়াম চ্যানেল বক্স */
+        .backup-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 15px; 
+            border-radius: 18px;
+            border: 1px solid rgba(212, 175, 55, 0.3) !important;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        .backup-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+            border-color: var(--secondary) !important;
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+        }
+
+        .backup-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%; /* গোল করে দিয়েছি দেখতে সুন্দর লাগবে */
+            object-fit: cover;
+            border: 2px solid var(--primary);
+        }
+
+        .backup-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            flex-grow: 1;
+            color: #fff;
+            margin-left: 15px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* প্রিমিয়াম জয়েন বাটন */
+        .join-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #000;
+            border: none;
+            padding: 8px 18px; 
+            border-radius: 50px;
+            font-size: 0.75rem; 
+            font-weight: 900; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3); 
+        }
+
+        /* Nav Bar (অ্যাক্টিভ কালারসহ) */
+        .nav { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #222; z-index: 1000; }
+        .nav a { color: #888; text-decoration: none; font-size: 12px; text-align: center; }
+        .nav a i { font-size: 20px; display: block; margin-bottom: 5px; }
+        .nav a.active { color: var(--secondary); }
+    </style>
 </head>
 <body>
 
-<h2>Support</h2>
+    <div class="support-header">
+        <i class="fas fa-headset"></i>
+        <h2>Support Center</h2>
+        <p>যেকোনো সমস্যায় আমাদের অফিশিয়াল গ্রুপ ও চ্যানেলে জয়েন করুন।</p>
+    </div>
 
-<div class="card"><a href="https://t.me/tiktokvairalvideo2026">🎬 Movie</a></div>
-<div class="card"><a href="https://t.me/tiktokvairalvideo2026">👀 Drama</a></div>
-<div class="card"><a href="https://t.me/tiktokvairalvideo2026">💋 Hot Movie</a></div>
-<div class="card"><a href="https://t.me/tiktokvairalvideo2026">🫦 Viral</a></div>
-<div class="card"><a href="https://t.me/tiktokvairalvideo2026">💾 Backup</a></div>
-<div class="card"><a href="https://t.me/tiktokvairalvideo2026">📱 TikTok</a></div>
-<div class="card"><a href="https://t.me/tiktokvairalvideo2026">👥 Group</a></div>
+    <div class="backup-wrapper">
+        <h3 class="section-title">Official Channels & Groups</h3>
+        
+        <div class="backup-list">
+            <div class="backup-item" onclick="window.open('https://t.me/teligramzx01')">
+                <img src="https://i.ibb.co.com/tTxFv2C4/20260311-182433.jpg" class="backup-img">
+                <div class="backup-name">OFFICIAL CHANNEL</div>
+                <button class="join-btn">Join Now</button>
+            </div>
 
-<p>আমাদের হারাতে নাই চাইলে জয়েন হয়ে সাথেই থাকেই, ধন্যবাদ 😍<p>
+            <div class="backup-item" onclick="window.open('https://t.me/+-osmdV8xxQkwMzQ9')">
+                <img src="https://i.ibb.co.com/qYP9sjZ5/20260311-182545.jpg" class="backup-img">
+                <div class="backup-name">MOVIE _ ALL</div>
+                <button class="join-btn">Join Now</button>
+            </div>
+
+            <div class="backup-item" onclick="window.open('https://t.me/+9h5x3_8npxtmNWQ1')">
+                <img src="https://i.ibb.co.com/ksQDjSRK/20260311-182621.jpg" class="backup-img">
+                <div class="backup-name">DRAMA _ ALL</div>
+                <button class="join-btn">Join Now</button>
+            </div>
+
+            <div class="backup-item" onclick="window.open('https://t.me/tiktokvairalvideo2026')">
+                <img src="https://i.ibb.co.com/JgZnqFd/20260311-182658.jpg" class="backup-img">
+                <div class="backup-name">HOT_MOVIE (18+)</div>
+                <button class="join-btn">Join Now</button>
+            </div>
+
+            <div class="backup-item" onclick="window.open('https://t.me/+QV5SXMBcEHpmNzJl')">
+                <img src="https://i.ibb.co.com/JwJHjV5v/20260311-182719.jpg" class="backup-img">
+                <div class="backup-name">বাচ্চাদের_ভিডিও_🥵(18+)</div>
+                <button class="join-btn">Join Now</button>
+            </div>
+
+            <div class="backup-item" onclick="window.open('https://t.me/chetgurup_all')">
+                <img src="https://i.ibb.co.com/gZRMRcjC/20260311-183001.jpg" class="backup-img">
+                <div class="backup-name">DISCUSSION GROUP</div>
+                <button class="join-btn">Join Now</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav">
+        <a href="index.html"><i class="fas fa-home"></i>Home</a>
+        <a href="browser.html"><i class="fas fa-th-large"></i>Browser</a>
+        <a href="profile.html"><i class="fas fa-user"></i>Profile</a>
+        <a href="support.html" class="active"><i class="fas fa-headset"></i>Support</a>
+    </div>
+
+</body>
+</html>
