@@ -6,7 +6,7 @@ const AD_CONFIG = {
     isDirectLinkEnabled: false, // ডিরেক্ট লিঙ্ক অন (true) নাকি অফ (false)
     
     // Adsgram Block IDs (৫টি আইডি রোটেশন হবে)
-    adsgramIds: ["29356", "29357", "67541", "09087", "78932"],
+    adsgramIds: ["29356"],
     
     // Monetag SDK Zone IDs
     monetagZones: ['10480960', '10679278', '10679295'],
