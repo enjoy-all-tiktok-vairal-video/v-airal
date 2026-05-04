@@ -107,40 +107,47 @@ function startUnlock(code) {
     if (!adCounts[code]) adCounts[code] = AD_CONFIG.requiredAdCount;
     const btn = document.getElementById(`btn-${code}`) || document.getElementById(`btn-s-${code}`);
     
-    // বর্তমানে কত নম্বর অ্যাড চলছে
     const currentAdNumber = (AD_CONFIG.requiredAdCount - adCounts[code]) + 1;
-
-    // ৩-রোটেশন লজিক (Adsgram -> Monetag -> Direct Link)
     let rotationPos = currentAdNumber % 3;
 
+    // --- Adsgram এর অংশ ---
     if (rotationPos === 1) {
-        // ১. Adsgram ভিডিও অ্যাড
         const randomId = AD_CONFIG.adsgramIds[Math.floor(Math.random() * AD_CONFIG.adsgramIds.length)];
+        
         if (window.Adsgram) {
             window.Adsgram.init({ blockId: randomId }).show()
                 .then(() => handleAds(code, btn))
-                .catch(() => alert("ভিডিও অ্যাডটি পুরোপুরি দেখুন!"));
-        } else { handleAds(code, btn); }
+                .catch((err) => {
+                    console.log("Adsgram failed, showing Monetag instead");
+                    // Adsgram ফেল করলে অটোমেটিক মনিট্যাগ দেখাবে
+                    showFallbackMonetag(code, btn);
+                });
+        } else {
+            showFallbackMonetag(code, btn);
+        }
     } 
+    // --- Monetag এর অংশ ---
     else if (rotationPos === 2) {
-        // ২. Monetag SDK (15s Ad)
-        const zone = AD_CONFIG.monetagZones[Math.floor(Math.random() * AD_CONFIG.monetagZones.length)];
-        if (typeof window[`show_${zone}`] === 'function') {
-            window[`show_${zone}`]().then(() => handleAds(code, btn)).catch(() => handleAds(code, btn));
-        } else { handleAds(code, btn); }
+        showFallbackMonetag(code, btn);
     } 
+    // --- Direct Link এর অংশ ---
     else {
-        // ০ বা ৩. Direct Link (যদি অন থাকে তবে ওপেন হবে, অফ থাকলে ভিডিও দেখাবে)
         if (AD_CONFIG.isDirectLinkEnabled) {
             window.open(AD_CONFIG.myDirectLink, '_blank');
             handleAds(code, btn);
         } else {
-            // ডিরেক্ট লিঙ্ক অফ থাকলে ব্যাকআপ হিসেবে Adsgram দেখাবে
-            const randomId = AD_CONFIG.adsgramIds[0];
-            if (window.Adsgram) {
-                window.Adsgram.init({ blockId: randomId }).show().then(() => handleAds(code, btn));
-            } else { handleAds(code, btn); }
+            showFallbackMonetag(code, btn);
         }
+    }
+}
+
+// ব্যাকআপ ফাংশন: যা মনিট্যাগ অ্যাড নিশ্চিত করবে
+function showFallbackMonetag(code, btn) {
+    const zone = AD_CONFIG.monetagZones[Math.floor(Math.random() * AD_CONFIG.monetagZones.length)];
+    if (typeof window[`show_${zone}`] === 'function') {
+        window[`show_${zone}`]().then(() => handleAds(code, btn)).catch(() => handleAds(code, btn));
+    } else {
+        handleAds(code, btn);
     }
 }
 
