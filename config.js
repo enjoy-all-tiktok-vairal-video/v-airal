@@ -1,19 +1,17 @@
 // ENJOY ALL - AD CONFIGURATION PANEL
 const AD_CONFIG = {
-    requiredAdCount: 5,         // মোট কয়টি ক্লিক করতে হবে (যেমন: ৫টি)
-    adsgramRequired: 2,        // এর মধ্যে Adsgram ভিডিও অ্যাড কয়টি (যেমন: ৪টি)
-    monetagRequired: 2,        // এর মধ্যে Monetag SDK (15s) অ্যাড কয়টি (যেমন: ১টি)
-    isDirectLinkEnabled: true, // ডিরেক্ট লিঙ্ক অন (true) নাকি অফ (false)
+    // এখানে সংখ্যা বসান (০ দিলে ওই অ্যাডটি আর আসবে না)
+    adsgramCount: 2,    // Adsgram ভিডিও অ্যাড কয়টি আসবে
+    monetagCount: 2,    // Monetag SDK অ্যাড কয়টি আসবে
+    directLinkCount: 1, // Direct Link (Pop-up) কয়টি আসবে
+
+    // আপনার আইডি এবং লিঙ্কসমূহ
+    adsgramIds: ["29356"], // Adsgram Block ID
+    monetagZones: ['10480960', '10679278', '10679295'], // Monetag Zone IDs
+    myDirectLink: "https://omg10.com/4/10547767", // আপনার ডাইরেক্ট লিঙ্ক
     
-    // Adsgram Block IDs (৫টি আইডি রোটেশন হবে)
-    adsgramIds: ["29356"],
-    
-    // Monetag SDK Zone IDs
-    monetagZones: ['10480960', '10679278', '10679295'],
-    
-    // Monetag Direct Link
-    myDirectLink: "https://omg10.com/4/10547767",
-    
-    // Bot URL
     botUrl: "https://t.me/enjoy420_bot/Enjoy_all"
 };
+
+// মোট কয়টি অ্যাড হবে তা অটোমেটিক হিসাব হবে
+AD_CONFIG.requiredAdCount = AD_CONFIG.adsgramCount + AD_CONFIG.monetagCount + AD_CONFIG.directLinkCount;
