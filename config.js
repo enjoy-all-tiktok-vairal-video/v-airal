@@ -1,7 +1,7 @@
 // ENJOY ALL - AD CONFIGURATION PANEL
 const AD_CONFIG = {
     // এখানে সংখ্যা বসান (০ দিলে ওই অ্যাডটি আর আসবে না)
-    adsgramCount: 2,    // Adsgram ভিডিও অ্যাড কয়টি আসবে
+    adsgramCount: 1,    // Adsgram ভিডিও অ্যাড কয়টি আসবে
     monetagCount: 2,    // Monetag SDK অ্যাড কয়টি আসবে
     directLinkCount: 0, // Direct Link (Pop-up) কয়টি আসবে
 
