@@ -3,7 +3,7 @@ const AD_CONFIG = {
     // এখানে সংখ্যা বসান (০ দিলে ওই অ্যাডটি আর আসবে না)
     adsgramCount: 2,    // Adsgram ভিডিও অ্যাড কয়টি আসবে
     monetagCount: 2,    // Monetag SDK অ্যাড কয়টি আসবে
-    directLinkCount: 1, // Direct Link (Pop-up) কয়টি আসবে
+    directLinkCount: 0, // Direct Link (Pop-up) কয়টি আসবে
 
     // আপনার আইডি এবং লিঙ্কসমূহ
     adsgramIds: ["29356"], // Adsgram Block ID
