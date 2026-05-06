@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <script src="config.js?v=5.0"></script> 
     <script src="database.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -9,6 +8,8 @@
     <meta name="theme-color" content="#050505">
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -24,41 +25,72 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        window.db = getDatabase(app);
-        window.ref = ref; window.runTransaction = runTransaction; window.onValue = onValue;
+        const db = getDatabase(app);
+        window.db = db;
+        window.ref = ref;
+        window.runTransaction = runTransaction;
+        window.onValue = onValue;
     </script>
     
-    <script src="https://sad.adsgram.ai/js/sdk.js"></script>
+    <script>(function(s){s.dataset.zone='10679138',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+
     <script src='//libtl.com/sdk.js' data-zone='10480960' data-sdk='show_10480960'></script>
     <script src='//libtl.com/sdk.js' data-zone='10679278' data-sdk='show_10679278'></script>
     <script src='//libtl.com/sdk.js' data-zone='10679295' data-sdk='show_10679295'></script>
-
+    
     <style>
-        /* আপনার দেওয়া সব অরিজিনাল CSS এখানে রাখা হয়েছে */
-        * { -webkit-user-select: none !important; user-select: none !important; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; background: #050505; font-family: 'Segoe UI', Arial, sans-serif; color: white; overflow-x: hidden; }
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(10, 10, 10, 0.9); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(15px); border-bottom: 1px solid #222; }
-        .logo { font-size: 22px; font-weight: bold; color: #ff0000; animation: logoElastic 3.5s infinite; }
-        @keyframes logoElastic { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); color: #fff; } }
-        .search { padding: 10px 15px; border-radius: 25px; border: 2.5px solid #333; background: #1a1a1a; color: white; width: 45%; outline: none; animation: rainbowBorder 4s linear infinite; }
-        @keyframes rainbowBorder { 0% { border-color: #ff0000; } 50% { border-color: #00ffff; } 100% { border-color: #ff0000; } }
-        .container { padding: 15px; margin-bottom: 80px; }
-        .section-title { font-size: 18px; margin: 25px 0 15px; border-left: 4px solid #ff0000; padding-left: 12px; font-weight: bold; }
-        .slider-container { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 15px; scrollbar-width: none; }
-        .slide-card { min-width: 135px; height: 195px; border-radius: 12px; overflow: hidden; border: 1px solid #333; flex-shrink: 0; position: relative; }
-        .slide-card img { width: 100%; height: 100%; object-fit: cover; }
-        .video-grid { display: grid; grid-template-columns: 1fr; gap: 30px; max-width: 500px; margin: auto; }
-        .card { background: #121212; border-radius: 20px; overflow: hidden; border: 1px solid #252525; }
-        .card img { width: 100%; }
-        .button { padding: 14px; background: linear-gradient(90deg, #ff0000, #800000); border: none; color: white; width: 100%; border-radius: 12px; font-weight: 800; cursor: pointer; }
-        .neon-highlight-card { animation: neonPulsate 1.5s infinite alternate; border: 3px solid #ff0000 !important; }
-        @keyframes neonPulsate { 0% { box-shadow: 0 0 20px #ff0000; } 100% { box-shadow: 0 0 20px #00ffff; } }
-        .nav { position: fixed; bottom: 0; width: 100%; background: #0a0a0a; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #222; }
-        .nav a { color: #555; text-decoration: none; font-size: 12px; }
-        .cat-btn.active { background: #ff0000; padding: 8px 15px; border-radius: 20px; color: white; }
+    /* আপনার আগের স্টাইলগুলো অপরিবর্তিত রাখা হয়েছে */
+    * { -webkit-user-select: none !important; -ms-user-select: none !important; user-select: none !important; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; background: #050505; font-family: 'Segoe UI', Arial, sans-serif; color: white; scroll-behavior: smooth; overflow-x: hidden; touch-action: pan-y; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(10, 10, 10, 0.9); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(15px); border-bottom: 1px solid #222; }
+    .logo { font-size: 22px; font-weight: bold; color: #ff0000; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255,0,0,0.5); display: inline-block; animation: logoElastic 3.5s ease-in-out infinite; }
+    @keyframes logoElastic { 0%, 100% { transform: scale(1); color: #ff0000; } 50% { transform: scale(1.15) rotate(-3deg); color: #ffffff; text-shadow: 0 0 20px #ff0000; } }
+    .search { padding: 10px 15px; border-radius: 25px; border: 2.5px solid #333; background: #1a1a1a; color: white; width: 45%; outline: none; transition: 0.3s; animation: rainbowBorder 4s linear infinite; box-shadow: 0 0 10px rgba(255, 0, 0, 0.2); }
+    @keyframes rainbowBorder { 0% { border-color: #ff0000; box-shadow: 0 0 10px rgba(255,0,0,0.5); } 25% { border-color: #ffff00; box-shadow: 0 0 10px rgba(255,255,0,0.5); } 50% { border-color: #00ff00; box-shadow: 0 0 10px rgba(0,255,0,0.5); } 75% { border-color: #00ffff; box-shadow: 0 0 10px rgba(0,255,255,0.5); } 100% { border-color: #ff0000; box-shadow: 0 0 10px rgba(255,0,0,0.5); } }
+    .cat-btn.active { border: none !important; position: relative; background: #111 !important; color: #fff; transform: scale(1.08); z-index: 1; overflow: hidden; }
+    .cat-btn.active::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(#ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); animation: rotateRunningLight 3s linear infinite; z-index: -2; }
+    .cat-btn.active::after { content: ''; position: absolute; inset: 2.5px; background: #111; border-radius: 30px; z-index: -1; }
+    @keyframes rotateRunningLight { 100% { transform: rotate(360deg); } }
+    .neon-highlight-card { animation: neonPulsate 1.5s infinite alternate !important; border: 3px solid #ff0000 !important; transform: scale(1.03); z-index: 50; }
+    @keyframes neonPulsate { 0% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000, inset 0 0 10px #ff0000; } 100% { border-color: #00ffff; box-shadow: 0 0 20px #00ffff, inset 0 0 10px #00ffff; } }
+    .s-btn { animation: discoBtnEffect 2s infinite alternate !important; }
+    @keyframes discoBtnEffect { 0% { filter: hue-rotate(0deg) brightness(1); transform: scale(1); } 100% { filter: hue-rotate(360deg) brightness(1.3); transform: scale(1.05); } }
+    .container { padding: 15px; margin-bottom: 80px; }
+    .section-title { font-size: 18px; margin: 25px 0 15px; border-left: 4px solid #ff0000; padding-left: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+    .slider-container { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 15px; scrollbar-width: none; }
+    .slide-card { min-width: 135px; height: 195px; position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #333; flex-shrink: 0; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+    .slide-card img { width: 100%; height: 100%; object-fit: cover; }
+    .slide-card .overlay { position: absolute; bottom: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.95)); padding: 25px 5px 10px; text-align: center; }
+    .slide-card p { margin: 0; font-size: 11px; font-weight: bold; color: #fff; }
+    .cat-box { display: flex; gap: 12px; margin-bottom: 10px; overflow-x: auto; padding: 10px 5px; scrollbar-width: none; }
+    .cat-btn { background: #111; color: #fff; padding: 10px 22px; border-radius: 30px; font-size: 13px; cursor: pointer; white-space: nowrap; transition: 0.4s; font-weight: 700; border: 2.5px solid #333; text-transform: uppercase; }
+    .active-cat-title { text-align: center; font-size: 22px; font-weight: 900; margin: 15px 0 25px; text-transform: uppercase; letter-spacing: 2px; background: linear-gradient(90deg, #ff0000, #00ff00, #00ffff, #ff0000); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: flowText 3s linear infinite; }
+    @keyframes flowText { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+    .video-grid { display: grid; grid-template-columns: 1fr; gap: 30px; max-width: 500px; margin: auto; }
+    .card { background: #121212; border-radius: 20px; overflow: hidden; border: 1px solid #252525; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
+    .card-img-box { position: relative; height: 220px; overflow: hidden; }
+    .card img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+    .card-info { padding: 15px; background: #121212; }
+    .card h3 { margin: 0 0 5px; font-size: 18px; font-weight: 700; color: #fff; }
+    .meta-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #888; margin-bottom: 10px; }
+    .id-badge { background: #1a1a1a; padding: 3px 8px; border-radius: 5px; border: 1px solid #333; color: #ff0000; cursor: pointer; font-weight: bold; }
+    .stats-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 8px 0; border-top: 1px solid #222; border-bottom: 1px solid #222; }
+    .stat-group { display: flex; gap: 15px; font-size: 12px; font-weight: bold; }
+    .stat-item { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+    .stat-item.active-like { color: #00ff00; }
+    .stat-item.active-dis { color: #ff4444; }
+    .button { padding: 14px; background: linear-gradient(90deg, #ff0000, #800000); border: none; color: white; width: 100%; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-bottom: 12px; transition: 0.3s; }
+    .share-row { display: flex; justify-content: center; gap: 8px; margin-top: 5px; }
+    .s-btn { flex: 1; padding: 10px 2px; font-size: 11px; font-weight: bold; border-radius: 8px; color: #ffffff !important; border: 1.5px solid rgba(255,255,255,0.3); cursor: pointer; text-shadow: 1px 1px 2px #000; }
+    .btn-link { background: #444444 !important; } 
+    .btn-fb { background: #1877F2 !important; } 
+    .btn-wa { background: #25D366 !important; } 
+    .nav { position: fixed; bottom: 0; width: 100%; background: rgba(10, 10, 10, 0.95); display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #222; z-index: 1000; }
+    .nav a { color: #555; text-decoration: none; font-size: 12px; text-align: center; }
+    .nav a.active { color: #ff0000; }
     </style>
 </head>
-<body oncontextmenu="return false;">
+<body oncontextmenu="return false;" onkeydown="return false;">
 
 <div class="header">
     <div class="logo">ENJOY ALL</div>
@@ -67,134 +99,157 @@
 
 <div class="container">
     <div id="searchResult"></div>
-    <div class="section-title">Featured</div>
-    <div id="topSlider" class="slider-container"></div>
-
+    <div id="featuredArea">
+        <div class="section-title">Featured <span style="float:right; font-size:11px; color:#666;">Top 15 New</span></div>
+        <div class="slider-container" id="topSlider"></div>
+    </div>
     <div class="section-title">Categories</div>
-    <div class="cat-box" style="display: flex; gap: 10px; overflow-x: auto; margin-bottom: 20px;">
+    <div class="cat-box">
         <button class="cat-btn active" onclick="filterCat('all', this)">All Episodes</button>
         <button class="cat-btn" onclick="filterCat('tiktok', this)">TikTok Viral</button>
+        <button class="cat-btn" onclick="filterCat('others', this)">Others Link</button>
     </div>
 
+    <div id="selectedCatName" class="active-cat-title">ALL EPISODES</div>
     <div class="video-grid" id="allVideos"></div>
 </div>
 
 <div class="nav">
-    <a href="index.html" class="active">🏠 Home</a>
+    <a href="index.html" id="nav-home">🏠 Home</a>
+    <a href="browser.html" id="nav-browser">🌐 Browser</a>
     <a href="profile.html">👤 Profile</a>
     <a href="support.html">🛠 Support</a>
 </div>
 
 <script>
+// কনফিগারেশন
+const myDirectLink = "https://omg10.com/4/10547767";
+const botUrl = "https://t.me/enjoy420_bot/Enjoy_all"; 
+const adsgramBlockId = "29356"; // আপনার নতুন Block ID এখানে বসানো হয়েছে
+let isDirectLinkEnabled = false; 
+let requiredAdCount = 4;         
+let adCounts = {};
+
 const tg = window.Telegram.WebApp;
-tg.ready(); tg.expand();
+tg.ready();
+tg.expand();
 
-let adStatus = {};
-
-// ডাইনামিক কিউ তৈরি (Config অনুযায়ী)
-function createAdQueue() {
-    let q = [];
-    for(let i=0; i<AD_CONFIG.adsgramCount; i++) q.push('adsgram');
-    for(let i=0; i<AD_CONFIG.monetagCount; i++) q.push('monetag');
-    for(let i=0; i<AD_CONFIG.directLinkCount; i++) q.push('direct');
-    return q;
-}
-
+// Adsgram ইন্টিগ্রেশন ফাংশন (Start Unlock এ অ্যাড দেখাবে)
 function startUnlock(code) {
-    if (!adStatus[code]) {
-        adStatus[code] = { rem: AD_CONFIG.requiredAdCount, list: createAdQueue() };
-    }
+    if (!adCounts[code]) adCounts[code] = requiredAdCount;
     const btn = document.getElementById(`btn-${code}`) || document.getElementById(`btn-s-${code}`);
-    const currentAd = adStatus[code].list[AD_CONFIG.requiredAdCount - adStatus[code].rem];
 
-    if (currentAd === 'adsgram') {
-        const id = AD_CONFIG.adsgramIds[Math.floor(Math.random() * AD_CONFIG.adsgramIds.length)];
-        if (window.Adsgram) {
-            window.Adsgram.init({ blockId: id }).show().then(() => handleAds(code, btn)).catch(() => showFallbackMonetag(code, btn));
-        } else { showFallbackMonetag(code, btn); }
-    } else if (currentAd === 'monetag') {
-        showFallbackMonetag(code, btn);
-    } else if (currentAd === 'direct') {
-        window.open(AD_CONFIG.myDirectLink, '_blank');
+    // Adsgram কন্ট্রোলার ইনিশিয়ালাইজেশন
+    const AdController = window.Adsgram.init({ blockId: adsgramBlockId });
+
+    // অ্যাড দেখানো শুরু
+    AdController.show().then((result) => {
+        // অ্যাড সফলভাবে দেখা শেষ হলে
         handleAds(code, btn);
-    }
-}
-
-function showFallbackMonetag(code, btn) {
-    const zone = AD_CONFIG.monetagZones[Math.floor(Math.random() * AD_CONFIG.monetagZones.length)];
-    if (typeof window[`show_${zone}`] === 'function') {
-        window[`show_${zone}`]().then(() => handleAds(code, btn)).catch(() => handleAds(code, btn));
-    } else { handleAds(code, btn); }
+    }).catch((result) => {
+        // যদি ইউজার অ্যাড কেটে দেয় বা লোড না হয়
+        alert("বিজ্ঞাপনটি সম্পূর্ণ দেখুন।");
+        console.error("Adsgram Error:", result);
+    });
 }
 
 function handleAds(code, btn) {
-    adStatus[code].rem--;
-    if (adStatus[code].rem > 0) {
-        btn.innerText = `🔒 UNLOCK (${adStatus[code].rem} ADS LEFT)`;
+    adCounts[code]--;
+    if (adCounts[code] > 0) { 
+        btn.innerText = `🔒 UNLOCK (${adCounts[code]} ADS LEFT)`; 
     } else {
-        if(window.db) {
-            window.runTransaction(window.ref(window.db, `stats/${code}`), (data) => {
-                if (!data) data = { v: 0, down: 0 };
-                data.v = (data.v || 0) + 1;
-                return data;
-            });
+        if(window.db) { 
+            window.runTransaction(window.ref(window.db, `stats/${code}`), (data) => { 
+                if (!data) data = { v: 0, down: 0, l: 0, d: 0 }; 
+                data.v = (data.v || 0) + 1; 
+                data.down = (data.down || 0) + 1; 
+                return data; 
+            }); 
         }
         btn.innerText = "▶ PLAY VIDEO";
-        btn.style.background = "#28a745";
+        btn.style.background = "linear-gradient(90deg, #28a745, #1e7e34)";
         btn.onclick = () => { window.location.href = videos[code].final; };
     }
 }
 
+// আপনার বাকি লজিকগুলো নিচে রাখা হয়েছে
+function triggerSearch(val) {
+    const resultDiv = document.getElementById("searchResult");
+    if (typeof videos === 'undefined') return;
+    const searchVal = val.trim().toUpperCase();
+    if (!searchVal || !videos[searchVal]) {
+        resultDiv.style.display = "none";
+        return;
+    }
+    resultDiv.style.display = "block";
+    const v = videos[searchVal];
+    const shareLink = `${botUrl}?startapp=${searchVal}`;
+    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareLink)}`;
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareLink)}`;
+    resultDiv.innerHTML = `<div class='card neon-highlight-card' id='search-card-${searchVal}' style='margin-bottom:30px;'><div class="card-img-box"><img src="${v.image}"></div><div class='card-info'><h3 style="color:#ff0000; font-size:13px; letter-spacing:1px;">⚡ DIRECT MATCH FOUND</h3><h3>${v.title}</h3><div class="meta-row"><span>📅 ${timeAgo((v.date || "") + " " + (v.time || ""))}</span><span class="id-badge" onclick="copyId('${searchVal}')"># ID: ${searchVal} 📋</span></div><div class="stats-bar"><div class="stat-group"><div class="stat-item">👁️ <span id="sv-${searchVal}">0</span></div><div class="stat-item">📥 <span id="sdn-${searchVal}">0</span></div></div></div><button class='button' onclick="startUnlock('${searchVal}')" id="btn-s-${searchVal}">🔒 UNLOCK (${requiredAdCount} ADS LEFT)</button><div class="share-row"><button class="s-btn btn-link" onclick="copyLink('${searchVal}')">Get Link</button><button class="s-btn btn-fb" onclick="openShare('${fbUrl}')">Facebook</button><button class="s-btn btn-wa" onclick="openShare('${waUrl}')">WhatsApp</button></div></div></div>`;
+    
+    if(window.db) {
+        window.onValue(window.ref(window.db, `stats/${searchVal}`), (snap) => {
+            const data = snap.val();
+            if(data) {
+                if(document.getElementById(`sv-${searchVal}`)) document.getElementById(`sv-${searchVal}`).innerText = data.v || 0;
+                if(document.getElementById(`sdn-${searchVal}`)) document.getElementById(`sdn-${searchVal}`).innerText = data.down || 0;
+            }
+        });
+    }
+    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function copyId(code) { navigator.clipboard.writeText(code); alert("ID: " + code + " Copied! ✅"); }
+
 function filterCat(type, btn) {
-    if(btn) {
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+    if(btn){ 
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active')); 
+        btn.classList.add('active'); 
+        const displayName = document.getElementById("selectedCatName"); 
+        if(displayName) displayName.innerText = btn.innerText.toUpperCase(); 
     }
     const grid = document.getElementById("allVideos");
-    grid.innerHTML = "";
+    grid.innerHTML = ""; 
     Object.keys(videos).forEach(code => {
         const v = videos[code];
         if (type === 'all' || v.cat === type) {
-            grid.insertAdjacentHTML('beforeend', `
-                <div class="card" id="card-${code}">
-                    <img src="${v.image}">
-                    <div style="padding:15px;">
-                        <h3>${v.title}</h3>
-                        <div style="font-size:11px; color:#888; margin-bottom:10px;">ID: ${code}</div>
-                        <button class="button" onclick="startUnlock('${code}')" id="btn-${code}">🔒 UNLOCK (${AD_CONFIG.requiredAdCount} ADS)</button>
-                    </div>
-                </div>`);
+            const userVote = localStorage.getItem(`voted_${code}`);
+            const cardHTML = `<div class="card" id="card-${code}"><div class="card-img-box"><img src="${v.image}" loading="lazy"></div><div class="card-info"><h3>${v.title}</h3><div class="meta-row"><span>📅 ${timeAgo(v.date + " " + (v.time || ""))}</span><span class="id-badge" onclick="copyId('${code}')"># ID: ${code} 📋</span></div><div class="stats-bar"><div class="stat-group"><div class="stat-item">👁️ <span id="v-${code}">0</span></div><div class="stat-item">📥 <span id="dn-${code}">0</span></div></div><div class="stat-group"><div class="stat-item ${userVote==='like'?'active-like':''}" onclick="handleVote('${code}','like')">👍 <span id="l-${code}">0</span></div><div class="stat-item ${userVote==='dislike'?'active-dis':''}" onclick="handleVote('${code}','dislike')">👎 <span id="d-${code}">0</span></div></div></div><button class="button" onclick="startUnlock('${code}')" id="btn-${code}">🔒 UNLOCK (${requiredAdCount} ADS LEFT)</button><div class="share-row"><button class="s-btn btn-link" onclick="copyLink('${code}')">Get Link</button><button class="s-btn btn-fb" onclick="openShare('https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(botUrl + "?startapp=" + code)}')">Facebook</button><button class="s-btn btn-wa" onclick="openShare('https://api.whatsapp.com/send?text=${encodeURIComponent(botUrl + "?startapp=" + code)}')">WhatsApp</button></div></div></div>`;
+            grid.insertAdjacentHTML('beforeend', cardHTML);
+            if(window.db) { window.onValue(window.ref(window.db, `stats/${code}`), (snap) => { const val = snap.val(); if(val){ if(document.getElementById(`v-${code}`)) document.getElementById(`v-${code}`).innerText = val.v || 0; if(document.getElementById(`dn-${code}`)) document.getElementById(`dn-${code}`).innerText = val.down || 0; if(document.getElementById(`l-${code}`)) document.getElementById(`l-${code}`).innerText = val.l || 0; if(document.getElementById(`d-${code}`)) document.getElementById(`d-${code}`).innerText = val.d || 0; } }); }
         }
     });
 }
 
-function triggerSearch(val) {
-    const res = document.getElementById("searchResult");
-    const code = val.trim().toUpperCase();
-    if (!code || !videos[code]) { res.style.display="none"; return; }
-    res.style.display="block";
-    const v = videos[code];
-    res.innerHTML = `
-        <div class="card neon-highlight-card">
-            <img src="${v.image}">
-            <div style="padding:15px;">
-                <h3>${v.title}</h3>
-                <button class="button" onclick="startUnlock('${code}')" id="btn-s-${code}">🔒 UNLOCK (${AD_CONFIG.requiredAdCount} ADS)</button>
-            </div>
-        </div>`;
-    res.scrollIntoView({ behavior: 'smooth' });
-}
+function copyLink(code) { const link = `${botUrl}?startapp=${code}`; navigator.clipboard.writeText(link).then(() => { alert("লিংক কপি হয়েছে! ✅"); }); }
+function openShare(url) { window.open(url, '_blank'); }
 
 function init() {
-    const slider = document.getElementById("topSlider");
-    Object.keys(videos).slice(0, 10).forEach(code => {
-        slider.innerHTML += `<div class="slide-card" onclick="startUnlock('${code}')"><img src="${videos[code].image}"></div>`;
-    });
-    filterCat('all');
+    const topSlider = document.getElementById("topSlider");
+    if (topSlider) {
+        topSlider.innerHTML = ""; 
+        Object.keys(videos).slice(0, 15).forEach(code => {
+            topSlider.innerHTML += `<div class="slide-card" onclick="startUnlock('${code}')"><img src="${videos[code].image}"><div class="overlay"><p>${videos[code].title}</p></div></div>`;
+        });
+    }
+    filterCat('all', document.querySelector('.cat-btn'));
 }
 
-let check = setInterval(() => { if (typeof videos !== 'undefined') { clearInterval(check); init(); } }, 500);
-document.getElementById("searchInput").addEventListener("input", function() { triggerSearch(this.value); });
+let checkFirebase = setInterval(() => { if (window.db) { clearInterval(checkFirebase); init(); } }, 500);
+
+function timeAgo(dateString) {
+    const now = new Date(); const past = new Date(dateString); const diffInSeconds = Math.floor((now - past) / 1000);
+    if (isNaN(past)) return dateString; 
+    const intervals = { year: 31536000, month: 2592000, week: 604800, day: 86400, hour: 3600, minute: 60 };
+    if (diffInSeconds < 60) return "Just Now";
+    if (diffInSeconds < intervals.hour) return Math.floor(diffInSeconds / intervals.minute) + " mins ago";
+    if (diffInSeconds < intervals.day) return Math.floor(diffInSeconds / intervals.hour) + " hours ago";
+    if (diffInSeconds < intervals.week) return Math.floor(diffInSeconds / intervals.day) + " days ago";
+    return past.toLocaleDateString('en-GB'); 
+}
+
+document.getElementById("searchInput").addEventListener("input", function() { triggerSearch(this.value.trim().toUpperCase()); });
 </script>
 </body>
 </html>
