@@ -2,7 +2,7 @@
 const AD_CONFIG = {
     // --- অ্যাডের সংখ্যা নিয়ন্ত্রণ ---
     adsgramCount: 2,    // Adsgram ভিডিও অ্যাড আসবে ৪টি
-    monetagCount: 3,    // Monetag SDK অ্যাড আসবে ৫টি
+    monetagCount: 1,    // Monetag SDK অ্যাড আসবে ৫টি
     directLinkCount: 1, // সব অ্যাড শেষ হওয়ার পর ডাইরেক্ট লিঙ্ক আসবে ৩ বার
 
     // --- আপনার আইডি এবং লিঙ্কসমূহ ---
