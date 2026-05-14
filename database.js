@@ -1,5 +1,109 @@
 // database.js ফাইলের ভেতরে শুধু এইটুকু থাকবে
 const videos = {
+    "EP_226": { 
+    title: "Episode 226", 
+    image: "https://i.ibb.co/8ncrmKg4/poster.jpg", 
+    final: "https://t.me/vaiiralwathevideo_bot?start=06095a30", 
+    cat: "all", 
+    date: "13 May 2026", 
+    time: "02:38 pm" 
+},
+"EP_225": { 
+    title: "Episode 225", 
+    image: "https://i.ibb.co/8LzqTkpk/poster.jpg", 
+    final: "https://t.me/vaiiralwathevideo_bot?start=6d6de27f", 
+    cat: "all", 
+    date: "13 May 2026", 
+    time: "02:38 pm" 
+},
+"EP_224": { 
+    title: "Episode 224", 
+    image: "https://i.ibb.co/bjYgZMbd/poster.jpg", 
+    final: "https://t.me/vaiiralwathevideo_bot?start=6b3ee066", 
+    cat: "all", 
+    date: "13 May 2026", 
+    time: "02:38 pm" 
+},
+"EP_223": { 
+    title: "Episode 223", 
+    image: "https://i.ibb.co/8gjVZLtR/poster.jpg", 
+    final: "https://t.me/vaiiralwathevideo_bot?start=3888e802", 
+    cat: "all", 
+    date: "13 May 2026", 
+    time: "02:38 pm" 
+},
+"EP_222": { 
+    title: "Episode 222", 
+    image: "https://i.ibb.co/8Dqc6b4v/poster.jpg", 
+    final: "https://t.me/vaiiralwathevideo_bot?start=eac34d0a-9", 
+    cat: "all", 
+    date: "13 May 2026", 
+    time: "02:38 pm" 
+},
+"EP_221": { 
+    title: "Episode 221", 
+    image: "https://i.ibb.co/Ld4nngY6/poster.jpg", 
+    final: "https://t.me/vaiiralwathevideo_bot?start=27d24696", 
+    cat: "all", 
+    date: "13 May 2026", 
+    time: "02:38 pm" 
+},
+"EP_220": { 
+    title: "Episode 220", 
+    image: "https://i.ibb.co/RpB4j789/poster.jpg", 
+    final: "https://t.me/vaiiralwathevideo_bot?start=bd8b48a8", 
+    cat: "all", 
+    date: "13 May 2026", 
+    time: "02:38 pm" 
+},
+"EP_219": { 
+    title: "Episode 219", 
+    image: "https://i.ibb.co/5hrcQq8j/poster.jpg", 
+    final: "https://t.me/vaiiralwathevideo_bot?start=aaad872a", 
+    cat: "all", 
+    date: "13 May 2026", 
+    time: "02:38 pm" 
+},
+    "EP_218": { 
+    title: "Episode 218", 
+    image: "https://i.ibb.co/9M0Q18C/poster.jpg", 
+    final: "https://t.me/vaiiralwathevideo_bot?start=71ecacfc-7", 
+    cat: "all", 
+    date: "08 May 2026", 
+    time: "12:06 am" 
+},
+"EP_217": { 
+    title: "Episode 217", 
+    image: "https://i.ibb.co/Kxj6bZ9L/poster.jpg", 
+    final: "https://t.me/vaiiralwathevideo_bot?start=904c42ca-3", 
+    cat: "all", 
+    date: "08 May 2026", 
+    time: "12:06 am" 
+},
+"EP_216": { 
+    title: "Episode 216", 
+    image: "https://i.ibb.co/p6T8hZ3K/poster.jpg", 
+    final: "https://t.me/vaiiralwathevideo_bot?start=fafd6653-0", 
+    cat: "all", 
+    date: "08 May 2026", 
+    time: "12:06 am" 
+},
+"EP_215": { 
+    title: "Episode 215", 
+    image: "https://i.ibb.co/MD18hjgS/poster.jpg", 
+    final: "https://t.me/vaiiralwathevideo_bot?start=3abdf92c-1", 
+    cat: "all", 
+    date: "08 May 2026", 
+    time: "12:06 am" 
+},
+"EP_214": { 
+    title: "Episode 214", 
+    image: "https://i.ibb.co/gMfx3zSq/poster.jpg", 
+    final: "https://t.me/vaiiralwathevideo_bot?start=11748c27-6", 
+    cat: "all", 
+    date: "08 May 2026", 
+    time: "12:06 am" 
+},
     "EP_213": { 
     title: "Episode 213", 
     image: "https://i.ibb.co/ymGTrd33/poster.jpg", 
