@@ -16,7 +16,7 @@ const AD_CONFIG = {
     myDirectLink: "https://omg10.com/4/10547767", 
     
     // আপনার টেলিগ্রাম বটের লিঙ্ক
-    botUrl: "https://t.me/enjoy420_bot/Enjoy_all"
+    botUrl: "https://t.me/Enjoy_01_bot/Enjoy01"
 };
 
 // মোট কয়টি স্টেপ পার করতে হবে তা অটোমেটিক হিসাব হবে
