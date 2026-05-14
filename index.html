@@ -37,7 +37,7 @@
     <script src='//libtl.com/sdk.js' data-zone='10679295' data-sdk='show_10679295'></script>
     
     <style>
-    /* আপনার পূর্বের স্টাইল অপরিবর্তিত */
+    /* আপনার ডিজাইন কোড এখানে অপরিবর্তিত রাখা হয়েছে */
     * { -webkit-user-select: none !important; -ms-user-select: none !important; user-select: none !important; -webkit-tap-highlight-color: transparent; }
     body { margin: 0; background: #050505; font-family: 'Segoe UI', Arial, sans-serif; color: white; scroll-behavior: smooth; overflow-x: hidden; touch-action: pan-y; }
     .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(10, 10, 10, 0.9); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(15px); border-bottom: 1px solid #222; }
@@ -134,7 +134,7 @@ function formatK(num) {
     return num;
 }
 
-// --- অ্যাড কিউ এবং সিরিয়াল লজিক ---
+// --- ১) নতুন অ্যাড কিউ এবং ডাইরেক্ট লিঙ্ক লজিক ---
 function startUnlock(code) {
     if (!adCounts[code]) {
         let adsList = [];
@@ -156,83 +156,73 @@ function startUnlock(code) {
         }
         
         adCounts[code] = {
-            adsRemaining: AD_CONFIG.requiredAdCount,
-            directRemaining: AD_CONFIG.directLinkCount || 0,
+            totalAds: AD_CONFIG.adsgramCount + AD_CONFIG.monetagCount,
+            doneAds: 0,
+            doneDirect: 0,
             queue: adsList,
-            currentIndex: 0,
-            isDirectPhase: false
+            currentIndex: 0
         };
     }
 
     const data = adCounts[code];
     const btn = document.getElementById(`btn-${code}`) || document.getElementById(`btn-s-${code}`);
 
-    // যদি অলরেডি ডাইরেক্ট লিঙ্ক ফেজে থাকে
-    if (data.isDirectPhase) {
-        handleDirectLink(code, btn);
-        return;
-    }
-
-    // বিজ্ঞাপন দেখানোর লজিক
-    const currentNetwork = data.queue[data.currentIndex];
-    if (currentNetwork === 'adsgram') {
-        const AdController = window.Adsgram.init({ blockId: AD_CONFIG.adsgramIds[0] });
-        AdController.show().then(() => {
-            data.currentIndex++;
-            data.adsRemaining--;
-            updateButtonStatus(code, btn);
-        }).catch(() => { tg.showAlert("বিজ্ঞাপনটি লোড হয়নি। আবার চেষ্টা করুন।"); });
-    } 
-    else if (currentNetwork === 'monetag') {
-        const mZones = AD_CONFIG.monetagZones;
-        const zoneToCall = mZones[data.currentIndex % mZones.length];
-        const sdkFunc = `show_${zoneToCall}`;
-
-        if (typeof window[sdkFunc] === 'function') {
-            window[sdkFunc]().then(() => {
+    // ধাপ ১: সাধারণ অ্যাড দেখানো
+    if (data.doneAds < data.totalAds) {
+        const currentNetwork = data.queue[data.currentIndex];
+        if (currentNetwork === 'adsgram') {
+            const AdController = window.Adsgram.init({ blockId: AD_CONFIG.adsgramIds[0] });
+            AdController.show().then(() => {
+                data.doneAds++;
                 data.currentIndex++;
-                data.adsRemaining--;
-                updateButtonStatus(code, btn);
-            }).catch(() => {
-                data.currentIndex++;
-                data.adsRemaining--;
-                updateButtonStatus(code, btn);
-            });
+                updateBtn(code, btn);
+            }).catch(() => { tg.showAlert("বিজ্ঞাপনটি লোড হয়নি। আবার চেষ্টা করুন।"); });
+        } 
+        else if (currentNetwork === 'monetag') {
+            const mZones = AD_CONFIG.monetagZones;
+            const zoneToCall = mZones[data.currentIndex % mZones.length];
+            const sdkFunc = `show_${zoneToCall}`;
+            if (typeof window[sdkFunc] === 'function') {
+                window[sdkFunc]().then(() => {
+                    data.doneAds++;
+                    data.currentIndex++;
+                    updateBtn(code, btn);
+                }).catch(() => {
+                    data.doneAds++;
+                    data.currentIndex++;
+                    updateBtn(code, btn);
+                });
+            }
         }
-    }
-}
-
-// ১) ডাইরেক্ট লিঙ্ক লজিক এবং বাটন আপডেট
-function updateButtonStatus(code, btn) {
-    const data = adCounts[code];
-    
-    if (data.adsRemaining > 0) {
-        btn.innerText = `🔒 UNLOCK (${data.adsRemaining} ADS LEFT)`;
     } 
-    else if (data.directRemaining > 0) {
-        data.isDirectPhase = true;
-        btn.innerText = `⚡ VERIFY (CLICK HERE)`;
-        btn.style.background = "linear-gradient(90deg, #f59e0b, #d97706)"; // Orange color for Verification
-        btn.onclick = () => handleDirectLink(code, btn);
+    // ধাপ ২: ডাইরেক্ট লিঙ্ক লজিক
+    else if (data.doneDirect < AD_CONFIG.directLinkCount) {
+        window.open(AD_CONFIG.myDirectLink, '_blank');
+        data.doneDirect++;
+        updateBtn(code, btn);
     } 
+    // ধাপ ৩: সব শেষ হলে প্লে বাটন
     else {
-        showPlayButton(code, btn);
+        showFinalPlay(code, btn);
     }
 }
 
-function handleDirectLink(code, btn) {
+function updateBtn(code, btn) {
     const data = adCounts[code];
-    window.open(AD_CONFIG.myDirectLink, '_blank');
-    data.directRemaining--;
-    
-    if (data.directRemaining <= 0) {
-        showPlayButton(code, btn);
+    const remAds = data.totalAds - data.doneAds;
+    const remDirect = AD_CONFIG.directLinkCount - data.doneDirect;
+
+    if (remAds > 0) {
+        btn.innerText = `🔒 UNLOCK (${remAds} ADS LEFT)`;
+    } else if (remDirect > 0) {
+        btn.innerText = `⚡ VERIFY (${remDirect} STEP LEFT)`;
+        btn.style.background = "linear-gradient(90deg, #f59e0b, #d97706)"; // বাটন কমলা হবে
     } else {
-        btn.innerText = `⚡ VERIFY (${data.directRemaining} LEFT)`;
+        showFinalPlay(code, btn);
     }
 }
 
-function showPlayButton(code, btn) {
+function showFinalPlay(code, btn) {
     if(window.db) { 
         window.runTransaction(window.ref(window.db, `stats/${code}`), (data) => { 
             if (!data) data = { v: 0, down: 0, l: 0, d: 0 }; 
@@ -247,7 +237,7 @@ function showPlayButton(code, btn) {
     btn.onclick = () => { window.location.href = videos[code].final; };
 }
 
-// --- আপনার আগের ফাংশনসমূহ (formatK যুক্ত সহ) ---
+// --- সার্চ এবং ফিল্টার ফাংশন (formatK সহ আপডেট) ---
 function triggerSearch(val) {
     const resultDiv = document.getElementById("searchResult");
     if (typeof videos === 'undefined') return;
@@ -290,7 +280,17 @@ function filterCat(type, btn) {
             const userVote = localStorage.getItem(`voted_${code}`);
             const cardHTML = `<div class="card" id="card-${code}"><div class="card-img-box"><img src="${v.image}" loading="lazy"></div><div class="card-info"><h3>${v.title}</h3><div class="meta-row"><span>📅 ${timeAgo(v.date + " " + (v.time || ""))}</span><span class="id-badge" onclick="copyId('${code}')"># ID: ${code} 📋</span></div><div class="stats-bar"><div class="stat-group"><div class="stat-item">👁️ <span id="v-${code}">0</span></div><div class="stat-item">📥 <span id="dn-${code}">0</span></div></div><div class="stat-group"><div class="stat-item ${userVote==='like'?'active-like':''}" onclick="handleVote('${code}','like')">👍 <span id="l-${code}">0</span></div><div class="stat-item ${userVote==='dislike'?'active-dis':''}" onclick="handleVote('${code}','dislike')">👎 <span id="d-${code}">0</span></div></div></div><button class="button" onclick="startUnlock('${code}')" id="btn-${code}">🔒 UNLOCK (${AD_CONFIG.requiredAdCount} ADS LEFT)</button><div class="share-row"><button class="s-btn btn-link" onclick="copyLink('${code}')">Get Link</button><button class="s-btn btn-fb" onclick="openShare('https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(AD_CONFIG.botUrl + "?startapp=" + code)}')">Facebook</button><button class="s-btn btn-wa" onclick="openShare('https://api.whatsapp.com/send?text=${encodeURIComponent(AD_CONFIG.botUrl + "?startapp=" + code)}')">WhatsApp</button></div></div></div>`;
             grid.insertAdjacentHTML('beforeend', cardHTML);
-            if(window.db) { window.onValue(window.ref(window.db, `stats/${code}`), (snap) => { const val = snap.val(); if(val){ if(document.getElementById(`v-${code}`)) document.getElementById(`v-${code}`).innerText = formatK(val.v || 0); if(document.getElementById(`dn-${code}`)) document.getElementById(`dn-${code}`).innerText = formatK(val.down || 0); if(document.getElementById(`l-${code}`)) document.getElementById(`l-${code}`).innerText = formatK(val.l || 0); if(document.getElementById(`d-${code}`)) document.getElementById(`d-${code}`).innerText = formatK(val.d || 0); } }); }
+            if(window.db) { 
+                window.onValue(window.ref(window.db, `stats/${code}`), (snap) => { 
+                    const val = snap.val(); 
+                    if(val){ 
+                        if(document.getElementById(`v-${code}`)) document.getElementById(`v-${code}`).innerText = formatK(val.v || 0); 
+                        if(document.getElementById(`dn-${code}`)) document.getElementById(`dn-${code}`).innerText = formatK(val.down || 0); 
+                        if(document.getElementById(`l-${code}`)) document.getElementById(`l-${code}`).innerText = formatK(val.l || 0); 
+                        if(document.getElementById(`d-${code}`)) document.getElementById(`d-${code}`).innerText = formatK(val.d || 0); 
+                    } 
+                }); 
+            }
         }
     });
 }
@@ -325,4 +325,4 @@ function timeAgo(dateString) {
 document.getElementById("searchInput").addEventListener("input", function() { triggerSearch(this.value.trim().toUpperCase()); });
 </script>
 </body>
-</html>
+    </html>
