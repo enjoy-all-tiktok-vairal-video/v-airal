@@ -37,7 +37,6 @@
     <script src='//libtl.com/sdk.js' data-zone='10679295' data-sdk='show_10679295'></script>
     
     <style>
-    /* আপনার ডিজাইন কোড এখানে অপরিবর্তিত রাখা হয়েছে */
     * { -webkit-user-select: none !important; -ms-user-select: none !important; user-select: none !important; -webkit-tap-highlight-color: transparent; }
     body { margin: 0; background: #050505; font-family: 'Segoe UI', Arial, sans-serif; color: white; scroll-behavior: smooth; overflow-x: hidden; touch-action: pan-y; }
     .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(10, 10, 10, 0.9); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(15px); border-bottom: 1px solid #222; }
@@ -126,7 +125,6 @@ tg.expand();
 
 let adCounts = {};
 
-// --- ২) ভিউ কাউন্ট ফরম্যাট ফাংশন (formatK) ---
 function formatK(num) {
     if (!num) return 0;
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -134,7 +132,25 @@ function formatK(num) {
     return num;
 }
 
-// --- ১) নতুন অ্যাড কিউ এবং ডাইরেক্ট লিঙ্ক লজিক ---
+// --- ভোট সিস্টেম ফাংশন ---
+function handleVote(code, type) {
+    if(!window.db) return;
+    const key = `voted_${code}`;
+    const oldType = localStorage.getItem(key);
+    if (oldType === type) return;
+
+    window.runTransaction(window.ref(window.db, `stats/${code}`), (data) => {
+        if (!data) data = { l: 0, d: 0, v: 0, down: 0 };
+        if (oldType === 'like') data.l = Math.max(0, data.l - 1);
+        if (oldType === 'dislike') data.d = Math.max(0, data.d - 1);
+        if (type === 'like') data.l++;
+        if (type === 'dislike') data.d++;
+        return data;
+    });
+    localStorage.setItem(key, type);
+    // UI সাথে সাথে আপডেট করার জন্য আবার ক্যাটাগরি ফিল্টার কল করা যেতে পারে অথবা বাটন কালার চেঞ্জ করা যায়
+}
+
 function startUnlock(code) {
     if (!adCounts[code]) {
         let adsList = [];
@@ -234,7 +250,6 @@ function showFinalPlay(code, btn) {
     btn.onclick = () => { window.location.href = videos[code].final; };
 }
 
-// --- নতুন ফিচার: Deep Link হ্যান্ডলার ---
 function handleDeepLink() {
     const urlParams = new URLSearchParams(window.location.search);
     let startParam = urlParams.get('tgWebAppStartParam');
@@ -321,7 +336,6 @@ function init() {
         });
     }
     filterCat('all', document.querySelector('.cat-btn'));
-    // ক্যাটাগরি লোড হওয়ার পর ডিপ লিঙ্ক হ্যান্ডেল করা হবে
     handleDeepLink();
 }
 
