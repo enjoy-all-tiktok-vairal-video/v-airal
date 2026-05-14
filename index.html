@@ -2,8 +2,7 @@
 <html lang="bn">
 <head>
     <script src="database.js"></script>
-    <script src="config.js"></script> 
-    <meta charset="UTF-8">
+    <script src="config.js"></script> <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ENJOY ALL - Home</title>
     <meta name="theme-color" content="#050505">
@@ -38,47 +37,43 @@
     <script src='//libtl.com/sdk.js' data-zone='10679295' data-sdk='show_10679295'></script>
     
     <style>
-    /* আপনার স্টাইলগুলো অপরিবর্তিত রাখা হয়েছে */
     * { -webkit-user-select: none !important; -ms-user-select: none !important; user-select: none !important; -webkit-tap-highlight-color: transparent; }
     body { margin: 0; background: #050505; font-family: 'Segoe UI', Arial, sans-serif; color: white; scroll-behavior: smooth; overflow-x: hidden; touch-action: pan-y; }
     .header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(10, 10, 10, 0.9); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(15px); border-bottom: 1px solid #222; }
     .logo { font-size: 22px; font-weight: bold; color: #ff0000; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255,0,0,0.5); display: inline-block; animation: logoElastic 3.5s ease-in-out infinite; }
     @keyframes logoElastic { 0%, 100% { transform: scale(1); color: #ff0000; } 50% { transform: scale(1.15) rotate(-3deg); color: #ffffff; text-shadow: 0 0 20px #ff0000; } }
     .search { padding: 10px 15px; border-radius: 25px; border: 2.5px solid #333; background: #1a1a1a; color: white; width: 45%; outline: none; transition: 0.3s; animation: rainbowBorder 4s linear infinite; box-shadow: 0 0 10px rgba(255, 0, 0, 0.2); }
-    @keyframes rainbowBorder { 0% { border-color: #ff0000; box-shadow: 0 0 10px rgba(255,0,0,0.5); } 25% { border-color: #ffff00; box-shadow: 0 0 10px rgba(255,255,0,0.5); } 50% { border-color: #00ff00; box-shadow: 0 0 10px rgba(0,255,0,0.5); } 75% { border-color: #00ffff; box-shadow: 0 0 10px rgba(0,255,255,0.5); } 100% { border-color: #ff0000; box-shadow: 0 0 10px rgba(255,0,0,0.5); } }
+    @keyframes rainbowBorder { 0% { border-color: #ff0000; } 50% { border-color: #00ff00; } 100% { border-color: #ff0000; } }
     .cat-btn.active { border: none !important; position: relative; background: #111 !important; color: #fff; transform: scale(1.08); z-index: 1; overflow: hidden; }
     .cat-btn.active::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(#ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000); animation: rotateRunningLight 3s linear infinite; z-index: -2; }
     .cat-btn.active::after { content: ''; position: absolute; inset: 2.5px; background: #111; border-radius: 30px; z-index: -1; }
     @keyframes rotateRunningLight { 100% { transform: rotate(360deg); } }
-    .neon-highlight-card { animation: neonPulsate 1.5s infinite alternate !important; border: 3px solid #ff0000 !important; transform: scale(1.03); z-index: 50; }
-    @keyframes neonPulsate { 0% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000, inset 0 0 10px #ff0000; } 100% { border-color: #00ffff; box-shadow: 0 0 20px #00ffff, inset 0 0 10px #00ffff; } }
+    .neon-highlight-card { animation: neonPulsate 1.5s infinite alternate !important; border: 3px solid #ff0000 !important; transform: scale(1.03); z-index: 50; scroll-margin-top: 100px; }
+    @keyframes neonPulsate { 0% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; } 100% { border-color: #00ffff; box-shadow: 0 0 20px #00ffff; } }
     .container { padding: 15px; margin-bottom: 80px; }
     .section-title { font-size: 18px; margin: 25px 0 15px; border-left: 4px solid #ff0000; padding-left: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
     .slider-container { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 15px; scrollbar-width: none; }
-    .slide-card { min-width: 135px; height: 195px; position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #333; flex-shrink: 0; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+    .slide-card { min-width: 135px; height: 195px; position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #333; flex-shrink: 0; }
     .slide-card img { width: 100%; height: 100%; object-fit: cover; }
     .slide-card .overlay { position: absolute; bottom: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.95)); padding: 25px 5px 10px; text-align: center; }
     .slide-card p { margin: 0; font-size: 11px; font-weight: bold; color: #fff; }
     .cat-box { display: flex; gap: 12px; margin-bottom: 10px; overflow-x: auto; padding: 10px 5px; scrollbar-width: none; }
     .cat-btn { background: #111; color: #fff; padding: 10px 22px; border-radius: 30px; font-size: 13px; cursor: pointer; white-space: nowrap; transition: 0.4s; font-weight: 700; border: 2.5px solid #333; text-transform: uppercase; }
-    .active-cat-title { text-align: center; font-size: 22px; font-weight: 900; margin: 15px 0 25px; text-transform: uppercase; letter-spacing: 2px; background: linear-gradient(90deg, #ff0000, #00ff00, #00ffff, #ff0000); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: flowText 3s linear infinite; }
-    @keyframes flowText { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+    .active-cat-title { text-align: center; font-size: 22px; font-weight: 900; margin: 15px 0 25px; text-transform: uppercase; letter-spacing: 2px; color: #ff0000; }
     .video-grid { display: grid; grid-template-columns: 1fr; gap: 30px; max-width: 500px; margin: auto; }
-    .card { background: #121212; border-radius: 20px; overflow: hidden; border: 1px solid #252525; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
+    .card { background: #121212; border-radius: 20px; overflow: hidden; border: 1px solid #252525; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: 0.4s; cursor: pointer; }
     .card-img-box { position: relative; height: 220px; overflow: hidden; }
-    .card img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+    .card img { width: 100%; height: 100%; object-fit: cover; }
     .card-info { padding: 15px; background: #121212; }
     .card h3 { margin: 0 0 5px; font-size: 18px; font-weight: 700; color: #fff; }
     .meta-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #888; margin-bottom: 10px; }
     .id-badge { background: #1a1a1a; padding: 3px 8px; border-radius: 5px; border: 1px solid #333; color: #ff0000; cursor: pointer; font-weight: bold; }
     .stats-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 8px 0; border-top: 1px solid #222; border-bottom: 1px solid #222; }
     .stat-group { display: flex; gap: 15px; font-size: 12px; font-weight: bold; }
-    .stat-item { display: flex; align-items: center; gap: 4px; cursor: pointer; }
-    .stat-item.active-like { color: #00ff00; }
-    .stat-item.active-dis { color: #ff4444; }
+    .stat-item { display: flex; align-items: center; gap: 4px; }
     .button { padding: 14px; background: linear-gradient(90deg, #ff0000, #800000); border: none; color: white; width: 100%; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-bottom: 12px; transition: 0.3s; }
     .share-row { display: flex; justify-content: center; gap: 8px; margin-top: 5px; }
-    .s-btn { flex: 1; padding: 10px 2px; font-size: 11px; font-weight: bold; border-radius: 8px; color: #ffffff !important; border: 1.5px solid rgba(255,255,255,0.3); cursor: pointer; text-shadow: 1px 1px 2px #000; }
+    .s-btn { flex: 1; padding: 10px 2px; font-size: 11px; font-weight: bold; border-radius: 8px; color: #ffffff !important; border: 1.5px solid rgba(255,255,255,0.3); cursor: pointer; text-align: center; text-decoration: none; }
     .btn-link { background: #444444 !important; } 
     .btn-fb { background: #1877F2 !important; } 
     .btn-wa { background: #25D366 !important; } 
@@ -87,7 +82,7 @@
     .nav a.active { color: #ff0000; }
     </style>
 </head>
-<body oncontextmenu="return false;" onkeydown="return false;">
+<body oncontextmenu="return false;">
 
 <div class="header">
     <div class="logo">ENJOY ALL</div>
@@ -125,143 +120,224 @@ tg.expand();
 
 let adCounts = {};
 
-// --- ১. অ্যাড লোড করার মূল ফাংশন ---
+// সংখ্যাকে K ফরম্যাটে নেওয়ার ফাংশন
+function formatK(num) {
+    if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    return num || 0;
+}
+
+// অ্যাড এবং ডাইরেক্ট লিঙ্ক হ্যান্ডলিং
 function startUnlock(code) {
     if (!adCounts[code]) {
         let adsList = [];
         let aCount = AD_CONFIG.adsgramCount;
         let mCount = AD_CONFIG.monetagCount;
-        let totalAds = aCount + mCount;
-
-        // অদলবদল করে কিউ সাজানো
-        for (let i = 0; i < totalAds; i++) {
+        
+        for (let i = 0; i < (aCount + mCount); i++) {
             if (i % 2 === 0 && aCount > 0) { adsList.push('adsgram'); aCount--; }
             else if (mCount > 0) { adsList.push('monetag'); mCount--; }
             else if (aCount > 0) { adsList.push('adsgram'); aCount--; }
         }
         
         adCounts[code] = {
-            remaining: AD_CONFIG.requiredAdCount,
-            queue: adsList,
-            currentIndex: 0,
-            directDone: 0
+            totalAds: AD_CONFIG.adsgramCount + AD_CONFIG.monetagCount,
+            doneAds: 0,
+            doneDirect: 0,
+            queue: adsList
         };
     }
 
     const data = adCounts[code];
     const btn = document.getElementById(`btn-${code}`) || document.getElementById(`btn-s-${code}`);
-    
-    // ২. যদি সাধারণ অ্যাড (Adsgram/Monetag) বাকি থাকে
-    if (data.currentIndex < data.queue.length) {
-        const currentNetwork = data.queue[data.currentIndex];
-        if (currentNetwork === 'adsgram') {
-            const AdController = window.Adsgram.init({ blockId: AD_CONFIG.adsgramIds[0] });
-            AdController.show().then(() => { data.currentIndex++; handleAdsUpdate(code, btn); })
-            .catch(() => { tg.showAlert("Ad failed. Try again."); });
-        } 
-        else if (currentNetwork === 'monetag') {
-            const zone = AD_CONFIG.monetagZones[data.currentIndex % AD_CONFIG.monetagZones.length];
-            if (typeof window[`show_${zone}`] === 'function') {
-                window[`show_${zone}`]().then(() => { data.currentIndex++; handleAdsUpdate(code, btn); })
-                .catch(() => { data.currentIndex++; handleAdsUpdate(code, btn); });
-            } else { data.currentIndex++; handleAdsUpdate(code, btn); }
+
+    // ১. প্রথমে সব সাধারণ অ্যাড দেখানো হবে
+    if (data.doneAds < data.totalAds) {
+        const network = data.queue[data.doneAds];
+        if (network === 'adsgram') {
+            window.Adsgram.init({ blockId: AD_CONFIG.adsgramIds[0] }).show().then(() => {
+                data.doneAds++;
+                updateBtn(code, btn);
+            }).catch(() => tg.showAlert("Ad failed, try again."));
+        } else {
+            const mZones = AD_CONFIG.monetagZones;
+            const zone = mZones[data.doneAds % mZones.length];
+            if (window[`show_${zone}`]) {
+                window[`show_${zone}`]().then(() => {
+                    data.doneAds++;
+                    updateBtn(code, btn);
+                }).catch(() => { data.doneAds++; updateBtn(code, btn); });
+            } else { data.doneAds++; updateBtn(code, btn); }
         }
     } 
-    // ৩. যদি ডাইরেক্ট লিঙ্ক বাকি থাকে
-    else if (data.directDone < AD_CONFIG.directLinkCount) {
+    // ২. অ্যাড শেষ হলে ডাইরেক্ট লিঙ্ক (যদি সংখ্যা ১ বা ২ থাকে)
+    else if (data.doneDirect < AD_CONFIG.directLinkCount) {
         window.open(AD_CONFIG.myDirectLink, '_blank');
-        data.directDone++;
-        handleAdsUpdate(code, btn);
+        data.doneDirect++;
+        updateBtn(code, btn);
+    } 
+    // ৩. সব শেষ হলে প্লে
+    else {
+        showFinalPlay(code, btn);
     }
 }
 
-function handleAdsUpdate(code, btn) {
+function updateBtn(code, btn) {
     const data = adCounts[code];
-    const totalDone = data.currentIndex + data.directDone;
-    const remainingTotal = AD_CONFIG.requiredAdCount - totalDone;
+    const remAds = data.totalAds - data.doneAds;
+    const remDirect = AD_CONFIG.directLinkCount - data.doneDirect;
 
-    if (remainingTotal > 0) {
-        if (data.currentIndex < data.queue.length) {
-            btn.innerText = `🔒 UNLOCK (${remainingTotal} ADS LEFT)`;
-        } else {
-            btn.innerText = `⚡ VERIFY (${AD_CONFIG.directLinkCount - data.directDone} LEFT)`;
-            btn.style.background = "linear-gradient(90deg, #f59e0b, #d97706)";
-        }
+    if (remAds > 0) {
+        btn.innerText = `🔒 UNLOCK (${remAds} ADS LEFT)`;
+    } else if (remDirect > 0) {
+        btn.innerText = `⚡ VERIFY (${remDirect} STEP LEFT)`;
+        btn.style.background = "linear-gradient(90deg, #f59e0b, #d97706)";
     } else {
-        showPlayButton(code, btn);
+        showFinalPlay(code, btn);
     }
 }
 
-function showPlayButton(code, btn) {
-    if(window.db) { 
-        window.runTransaction(window.ref(window.db, `stats/${code}`), (data) => { 
-            if (!data) data = { v: 0, down: 0, l: 0, d: 0 }; 
-            data.v = (data.v || 0) + 1; 
-            data.down = (data.down || 0) + 1; 
-            return data; 
-        }); 
+function showFinalPlay(code, btn) {
+    if(window.db) {
+        window.runTransaction(window.ref(window.db, `stats/${code}`), (s) => {
+            if (!s) s = { v: 0, down: 0, l: 0, d: 0 };
+            s.v++; s.down++; return s;
+        });
     }
     btn.innerText = "▶ PLAY NOW";
     btn.style.background = "linear-gradient(90deg, #10b981, #059669)";
     btn.onclick = () => { window.location.href = videos[code].final; };
 }
 
-// --- ৪. অটো-টেনে নিয়ে যাওয়ার লজিক (Deep Linking) ---
-function checkStartApp() {
-    const params = new URLSearchParams(window.location.search);
-    const startAppCode = params.get('startapp') || tg.initDataUnsafe?.start_param;
-    if (startAppCode) {
-        setTimeout(() => {
-            const searchInput = document.getElementById("searchInput");
-            searchInput.value = startAppCode.toUpperCase();
-            triggerSearch(startAppCode.toUpperCase());
-        }, 1000);
-    }
-}
-
-// --- ৫. অন্যান্য ফাংশনসমূহ (অপরিবর্তিত) ---
+// সার্চ এবং অটো স্ক্রোল লজিক
 function triggerSearch(val) {
     const resultDiv = document.getElementById("searchResult");
     if (typeof videos === 'undefined') return;
     const searchVal = val.trim().toUpperCase();
-    if (!searchVal || !videos[searchVal]) { resultDiv.style.display = "none"; return; }
+    if (!searchVal || !videos[searchVal]) {
+        resultDiv.style.display = "none";
+        return;
+    }
     resultDiv.style.display = "block";
     const v = videos[searchVal];
     const shareLink = `${AD_CONFIG.botUrl}?startapp=${searchVal}`;
-    resultDiv.innerHTML = `<div class='card neon-highlight-card' id='search-card-${searchVal}' style='margin-bottom:30px;'><div class="card-img-box"><img src="${v.image}"></div><div class='card-info'><h3>${v.title}</h3><div class="meta-row"><span>📅 ${timeAgo(v.date)}</span><span class="id-badge" onclick="copyId('${searchVal}')"># ID: ${searchVal} 📋</span></div><button class='button' onclick="startUnlock('${searchVal}')" id="btn-s-${searchVal}">🔒 UNLOCK (${AD_CONFIG.requiredAdCount} ADS LEFT)</button><div class="share-row"><button class="s-btn btn-link" onclick="copyLink('${searchVal}')">Get Link</button></div></div></div>`;
-    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
+    
+    // কার্ড তৈরি
+    resultDiv.innerHTML = `
+        <div class='card neon-highlight-card' id='search-card-${searchVal}' style='margin-bottom:30px;'>
+            <div class="card-img-box"><img src="${v.image}"></div>
+            <div class='card-info'>
+                <h3 style="color:#ff0000; font-size:12px;">⚡ DIRECT MATCH FOUND</h3>
+                <h3>${v.title}</h3>
+                <div class="meta-row">
+                    <span>📅 ${v.date || 'New'}</span>
+                    <span class="id-badge" onclick="copyId('${searchVal}')"># ID: ${searchVal} 📋</span>
+                </div>
+                <div class="stats-bar">
+                    <div class="stat-group">
+                        <div class="stat-item">👁️ <span id="sv-${searchVal}">0</span></div>
+                        <div class="stat-item">📥 <span id="sdn-${searchVal}">0</span></div>
+                    </div>
+                </div>
+                <button class='button' onclick="startUnlock('${searchVal}')" id="btn-s-${searchVal}">🔒 UNLOCK (${AD_CONFIG.requiredAdCount} ADS)</button>
+                <div class="share-row">
+                    <button class="s-btn btn-link" onclick="copyLink('${searchVal}')">Get Link</button>
+                    <a class="s-btn btn-fb" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareLink)}" target="_blank">Facebook</a>
+                    <a class="s-btn btn-wa" href="https://api.whatsapp.com/send?text=${encodeURIComponent(shareLink)}" target="_blank">WhatsApp</a>
+                </div>
+            </div>
+        </div>`;
+    
+    // ভিউ কাউন্ট আপডেট
+    if(window.db) {
+        window.onValue(window.ref(window.db, `stats/${searchVal}`), (snap) => {
+            const d = snap.val(); if(d){
+                document.getElementById(`sv-${searchVal}`).innerText = formatK(d.v);
+                document.getElementById(`sdn-${searchVal}`).innerText = formatK(d.down);
+            }
+        });
+    }
 
+    // ১. অটোমেটিক স্ক্রোল করে মাঝখানে আনা
+    setTimeout(() => {
+        const card = document.getElementById(`search-card-${searchVal}`);
+        if(card) {
+            card.scrollIntoView({ behavior: "smooth", block: "center" });
+            
+            // ২. ১৫ সেকেন্ড পর হাইলাইট বর্ডার সরিয়ে ফেলা
+            setTimeout(() => {
+                card.classList.remove('neon-highlight-card');
+                card.style.border = "1px solid #252525"; // নরমাল বর্ডার
+            }, 15000); // ১৫০০০ মিলি-সেকেন্ড = ১৫ সেকেন্ড
+        }
+    }, 500);
+}
+// ক্যাটাগরি এবং ভিডিও লিস্ট
 function filterCat(type, btn) {
-    if(btn){ document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); document.getElementById("selectedCatName").innerText = btn.innerText.toUpperCase(); }
+    if(btn){ 
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active')); 
+        btn.classList.add('active'); 
+        document.getElementById("selectedCatName").innerText = btn.innerText.toUpperCase(); 
+    }
     const grid = document.getElementById("allVideos");
     grid.innerHTML = ""; 
     Object.keys(videos).forEach(code => {
         const v = videos[code];
         if (type === 'all' || v.cat === type) {
-            grid.insertAdjacentHTML('beforeend', `<div class="card"><div class="card-img-box"><img src="${v.image}" loading="lazy"></div><div class="card-info"><h3>${v.title}</h3><div class="meta-row"><span>📅 ${timeAgo(v.date)}</span><span class="id-badge"># ID: ${code}</span></div><button class="button" onclick="startUnlock('${code}')" id="btn-${code}">🔒 UNLOCK (${AD_CONFIG.requiredAdCount} ADS LEFT)</button></div></div>`);
+            const shareLink = `${AD_CONFIG.botUrl}?startapp=${code}`;
+            grid.insertAdjacentHTML('beforeend', `
+                <div class="card" id="card-${code}">
+                    <div class="card-img-box"><img src="${v.image}" loading="lazy"></div>
+                    <div class="card-info">
+                        <h3>${v.title}</h3>
+                        <div class="meta-row"><span>📅 ${v.date}</span><span class="id-badge" onclick="copyId('${code}')">ID: ${code}</span></div>
+                        <div class="stats-bar">
+                            <div class="stat-group">
+                                <div class="stat-item">👁️ <span id="v-${code}">0</span></div>
+                                <div class="stat-item">📥 <span id="dn-${code}">0</span></div>
+                            </div>
+                        </div>
+                        <button class="button" onclick="startUnlock('${code}')" id="btn-${code}">🔒 UNLOCK (${AD_CONFIG.requiredAdCount} ADS)</button>
+                        <div class="share-row">
+                            <button class="s-btn btn-link" onclick="copyLink('${code}')">Link</button>
+                            <a class="s-btn btn-fb" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareLink)}" target="_blank">FB</a>
+                            <a class="s-btn btn-wa" href="https://api.whatsapp.com/send?text=${encodeURIComponent(shareLink)}" target="_blank">WA</a>
+                        </div>
+                    </div>
+                </div>`);
+            if(window.db) {
+                window.onValue(window.ref(window.db, `stats/${code}`), (snap) => {
+                    const d = snap.val(); if(d){
+                        if(document.getElementById(`v-${code}`)) document.getElementById(`v-${code}`).innerText = formatK(d.v);
+                        if(document.getElementById(`dn-${code}`)) document.getElementById(`dn-${code}`).innerText = formatK(d.down);
+                    }
+                });
+            }
         }
     });
 }
 
 function init() {
+    // স্লাইডার
     const topSlider = document.getElementById("topSlider");
-    if (topSlider) {
-        topSlider.innerHTML = ""; 
-        Object.keys(videos).slice(0, 15).forEach(code => {
-            topSlider.innerHTML += `<div class="slide-card" onclick="startUnlock('${code}')"><img src="${videos[code].image}"><div class="overlay"><p>${videos[code].title}</p></div></div>`;
-        });
-    }
+    Object.keys(videos).slice(0, 15).forEach(code => {
+        topSlider.innerHTML += `<div class="slide-card" onclick="startUnlock('${code}')"><img src="${videos[code].image}"><div class="overlay"><p>${videos[code].title}</p></div></div>`;
+    });
     filterCat('all', document.querySelector('.cat-btn'));
-    checkStartApp(); // এখানে অটো চেক শুরু হবে
+
+    // ডিপ লিঙ্কিং চেক (বট থেকে আসলে)
+    const urlParams = new URLSearchParams(window.location.search);
+    const startApp = urlParams.get('startapp');
+    if (startApp) {
+        setTimeout(() => triggerSearch(startApp), 1000);
+    }
 }
 
-function copyId(code) { navigator.clipboard.writeText(code); alert("ID Copied!"); }
+function copyId(code) { navigator.clipboard.writeText(code); alert("ID: " + code + " Copied!"); }
 function copyLink(code) { navigator.clipboard.writeText(`${AD_CONFIG.botUrl}?startapp=${code}`); alert("Link Copied!"); }
-function timeAgo(d) { return d || "Recently"; }
 
-let checkFirebase = setInterval(() => { if (window.db) { clearInterval(checkFirebase); init(); } }, 500);
-document.getElementById("searchInput").addEventListener("input", function() { triggerSearch(this.value.trim().toUpperCase()); });
+let checkFirebase = setInterval(() => { if (window.db && typeof videos !== 'undefined') { clearInterval(checkFirebase); init(); } }, 500);
+document.getElementById("searchInput").addEventListener("input", function() { triggerSearch(this.value.toUpperCase()); });
 </script>
 </body>
 </html>
