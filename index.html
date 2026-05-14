@@ -167,7 +167,6 @@ function startUnlock(code) {
     const data = adCounts[code];
     const btn = document.getElementById(`btn-${code}`) || document.getElementById(`btn-s-${code}`);
 
-    // ধাপ ১: সাধারণ অ্যাড দেখানো
     if (data.doneAds < data.totalAds) {
         const currentNetwork = data.queue[data.currentIndex];
         if (currentNetwork === 'adsgram') {
@@ -195,13 +194,11 @@ function startUnlock(code) {
             }
         }
     } 
-    // ধাপ ২: ডাইরেক্ট লিঙ্ক লজিক
     else if (data.doneDirect < AD_CONFIG.directLinkCount) {
         window.open(AD_CONFIG.myDirectLink, '_blank');
         data.doneDirect++;
         updateBtn(code, btn);
     } 
-    // ধাপ ৩: সব শেষ হলে প্লে বাটন
     else {
         showFinalPlay(code, btn);
     }
@@ -216,7 +213,7 @@ function updateBtn(code, btn) {
         btn.innerText = `🔒 UNLOCK (${remAds} ADS LEFT)`;
     } else if (remDirect > 0) {
         btn.innerText = `⚡ VERIFY (${remDirect} STEP LEFT)`;
-        btn.style.background = "linear-gradient(90deg, #f59e0b, #d97706)"; // বাটন কমলা হবে
+        btn.style.background = "linear-gradient(90deg, #f59e0b, #d97706)";
     } else {
         showFinalPlay(code, btn);
     }
@@ -237,7 +234,27 @@ function showFinalPlay(code, btn) {
     btn.onclick = () => { window.location.href = videos[code].final; };
 }
 
-// --- সার্চ এবং ফিল্টার ফাংশন (formatK সহ আপডেট) ---
+// --- নতুন ফিচার: Deep Link হ্যান্ডলার ---
+function handleDeepLink() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let startParam = urlParams.get('tgWebAppStartParam');
+    if (!startParam && tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
+        startParam = tg.initDataUnsafe.start_param;
+    }
+
+    if (startParam) {
+        const code = startParam.trim().toUpperCase();
+        setTimeout(() => {
+            const targetCard = document.getElementById(`card-${code}`);
+            if (targetCard) {
+                targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                targetCard.classList.add('neon-highlight-card');
+                setTimeout(() => targetCard.classList.remove('neon-highlight-card'), 8000);
+            }
+        }, 800);
+    }
+}
+
 function triggerSearch(val) {
     const resultDiv = document.getElementById("searchResult");
     if (typeof videos === 'undefined') return;
@@ -251,7 +268,7 @@ function triggerSearch(val) {
     const shareLink = `${AD_CONFIG.botUrl}?startapp=${searchVal}`;
     const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareLink)}`;
     const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareLink)}`;
-    resultDiv.innerHTML = `<div class='card neon-highlight-card' id='search-card-${searchVal}' style='margin-bottom:30px;'><div class="card-img-box"><img src="${v.image}"></div><div class='card-info'><h3 style="color:#ff0000; font-size:13px; letter-spacing:1px;">⚡ DIRECT MATCH FOUND</h3><h3>${v.title}</h3><div class="meta-row"><span>📅 ${timeAgo((v.date || "") + " " + (v.time || ""))}</span><span class="id-badge" onclick="copyId('${searchVal}')"># ID: ${searchVal} 📋</span></div><div class="stats-bar"><div class="stat-group"><div class="stat-item">👁️ <span id="sv-${searchVal}">0</span></div><div class="stat-item">📥 <span id="sdn-${searchVal}">0</span></div></div></div><button class='button' onclick="startUnlock('${searchVal}')" id="btn-s-${searchVal}">🔒 UNLOCK (${AD_CONFIG.requiredAdCount} ADS LEFT)</button><div class="share-row"><button class="s-btn btn-link" onclick="copyLink('${searchVal}')">Get Link</button><button class="s-btn btn-fb" onclick="openShare('${fbUrl}')">Facebook</button><button class="s-btn btn-wa" onclick="openShare('${waUrl}')">WhatsApp</button></div></div></div>`;
+    resultDiv.innerHTML = `<div class='card neon-highlight-card' id='search-card-${searchVal}' style='margin-bottom:30px;'><div class="card-img-box"><img src="${v.image}"></div><div class='card-info'><h3 style="color:#ff0000; font-size:13px; letter-spacing:1px;">⚡ DIRECT MATCH FOUND</h3><h3>${v.title}</h3><div class="meta-row"><span>📅 ${timeAgo((v.date || "") + " " + (v.time || ""))}</span><span class="id-badge" onclick="copyId('${searchVal}')"># ID: ${searchVal} 📋</span></div><div class="stats-bar"><div class="stat-group"><div class="stat-item">👁️ <span id="sv-${searchVal}">0</span></div><div class="stat-item">📥 <span id="sdn-${searchVal}">0</span></div></div></div><button class='button' onclick="startUnlock('${searchVal}')" id="btn-s-${searchVal}">🔒 UNLOCK</button><div class="share-row"><button class="s-btn btn-link" onclick="copyLink('${searchVal}')">Get Link</button><button class="s-btn btn-fb" onclick="openShare('${fbUrl}')">Facebook</button><button class="s-btn btn-wa" onclick="openShare('${waUrl}')">WhatsApp</button></div></div></div>`;
     
     if(window.db) {
         window.onValue(window.ref(window.db, `stats/${searchVal}`), (snap) => {
@@ -278,7 +295,7 @@ function filterCat(type, btn) {
         const v = videos[code];
         if (type === 'all' || v.cat === type) {
             const userVote = localStorage.getItem(`voted_${code}`);
-            const cardHTML = `<div class="card" id="card-${code}"><div class="card-img-box"><img src="${v.image}" loading="lazy"></div><div class="card-info"><h3>${v.title}</h3><div class="meta-row"><span>📅 ${timeAgo(v.date + " " + (v.time || ""))}</span><span class="id-badge" onclick="copyId('${code}')"># ID: ${code} 📋</span></div><div class="stats-bar"><div class="stat-group"><div class="stat-item">👁️ <span id="v-${code}">0</span></div><div class="stat-item">📥 <span id="dn-${code}">0</span></div></div><div class="stat-group"><div class="stat-item ${userVote==='like'?'active-like':''}" onclick="handleVote('${code}','like')">👍 <span id="l-${code}">0</span></div><div class="stat-item ${userVote==='dislike'?'active-dis':''}" onclick="handleVote('${code}','dislike')">👎 <span id="d-${code}">0</span></div></div></div><button class="button" onclick="startUnlock('${code}')" id="btn-${code}">🔒 UNLOCK (${AD_CONFIG.requiredAdCount} ADS LEFT)</button><div class="share-row"><button class="s-btn btn-link" onclick="copyLink('${code}')">Get Link</button><button class="s-btn btn-fb" onclick="openShare('https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(AD_CONFIG.botUrl + "?startapp=" + code)}')">Facebook</button><button class="s-btn btn-wa" onclick="openShare('https://api.whatsapp.com/send?text=${encodeURIComponent(AD_CONFIG.botUrl + "?startapp=" + code)}')">WhatsApp</button></div></div></div>`;
+            const cardHTML = `<div class="card" id="card-${code}"><div class="card-img-box"><img src="${v.image}" loading="lazy"></div><div class="card-info"><h3>${v.title}</h3><div class="meta-row"><span>📅 ${timeAgo(v.date + " " + (v.time || ""))}</span><span class="id-badge" onclick="copyId('${code}')"># ID: ${code} 📋</span></div><div class="stats-bar"><div class="stat-group"><div class="stat-item">👁️ <span id="v-${code}">0</span></div><div class="stat-item">📥 <span id="dn-${code}">0</span></div></div><div class="stat-group"><div class="stat-item ${userVote==='like'?'active-like':''}" onclick="handleVote('${code}','like')">👍 <span id="l-${code}">0</span></div><div class="stat-item ${userVote==='dislike'?'active-dis':''}" onclick="handleVote('${code}','dislike')">👎 <span id="d-${code}">0</span></div></div></div><button class="button" onclick="startUnlock('${code}')" id="btn-${code}">🔒 UNLOCK</button><div class="share-row"><button class="s-btn btn-link" onclick="copyLink('${code}')">Get Link</button><button class="s-btn btn-fb" onclick="openShare('https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(AD_CONFIG.botUrl + "?startapp=" + code)}')">Facebook</button><button class="s-btn btn-wa" onclick="openShare('https://api.whatsapp.com/send?text=${encodeURIComponent(AD_CONFIG.botUrl + "?startapp=" + code)}')">WhatsApp</button></div></div></div>`;
             grid.insertAdjacentHTML('beforeend', cardHTML);
             if(window.db) { 
                 window.onValue(window.ref(window.db, `stats/${code}`), (snap) => { 
@@ -304,6 +321,8 @@ function init() {
         });
     }
     filterCat('all', document.querySelector('.cat-btn'));
+    // ক্যাটাগরি লোড হওয়ার পর ডিপ লিঙ্ক হ্যান্ডেল করা হবে
+    handleDeepLink();
 }
 
 function copyId(code) { navigator.clipboard.writeText(code); alert("ID: " + code + " Copied! ✅"); }
@@ -325,4 +344,4 @@ function timeAgo(dateString) {
 document.getElementById("searchInput").addEventListener("input", function() { triggerSearch(this.value.trim().toUpperCase()); });
 </script>
 </body>
-    </html>
+</html>
