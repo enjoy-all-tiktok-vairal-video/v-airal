@@ -1,5 +1,21 @@
 // database.js ফাইলের ভেতরে শুধু এইটুকু থাকবে
 const videos = {
+    "8866437726": { 
+    title: "Episode NaN", 
+    image: "https://i.ibb.co/mC8f0490/poster.jpg", 
+    final: "https://t.me/vaiiralwathevideo_bot?start=65ef559e-7", 
+    cat: "all", 
+    date: "23 May 2026", 
+    time: "01:52 am" 
+},
+"8866437725": { 
+    title: "Episode NaN", 
+    image: "https://i.ibb.co/LDm55B03/poster.jpg", 
+    final: "https://t.me/vaiiralwathevideo_bot?start=fa191642-7", 
+    cat: "all", 
+    date: "23 May 2026", 
+    time: "01:52 am" 
+},
     "077387765": { 
     title: "Episode NaN", 
     image: "https://i.ibb.co/yFt5Lx4k/poster.jpg", 
