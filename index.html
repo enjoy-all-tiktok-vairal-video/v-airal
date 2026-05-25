@@ -148,7 +148,6 @@ function handleVote(code, type) {
         return data;
     });
     localStorage.setItem(key, type);
-    // UI সাথে সাথে আপডেট করার জন্য আবার ক্যাটাগরি ফিল্টার কল করা যেতে পারে অথবা বাটন কালার চেঞ্জ করা যায়
 }
 
 function startUnlock(code) {
@@ -186,7 +185,8 @@ function startUnlock(code) {
     if (data.doneAds < data.totalAds) {
         const currentNetwork = data.queue[data.currentIndex];
         if (currentNetwork === 'adsgram') {
-            const AdController = window.Adsgram.init({ blockId: AD_CONFIG.adsgramIds[0] });
+            // আপনার সঠিক Adsgram Block ID '29356' এখানে ফিক্সড করে দেওয়া হলো
+            const AdController = window.Adsgram.init({ blockId: "29356" });
             AdController.show().then(() => {
                 data.doneAds++;
                 data.currentIndex++;
