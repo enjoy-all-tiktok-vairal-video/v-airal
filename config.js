@@ -7,7 +7,7 @@ const AD_CONFIG = {
 
     // --- আপনার আইডি এবং লিঙ্কসমূহ ---
     // Adsgram Block ID (আপনার স্ক্রিনশট অনুযায়ী)
-    adsgramIds: ["30634"], 
+    adsgramIds: ["29356"], 
 
     // Monetag Zone IDs (আপনার ইনডেক্স ফাইলে থাকা আইডিগুলো)
     monetagZones: ['10480960', '10679278', '10679295'], 
