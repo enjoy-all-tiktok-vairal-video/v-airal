@@ -44,6 +44,7 @@ body { margin: 0; background: var(--bg-main); color: var(--text-main); font-fami
 .badge { position: absolute; top: -6px; right: -2px; background: #ef4444; color: white; font-size: 10px; font-weight: bold; height: 18px; min-width: 18px; padding: 0 5px; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-main); z-index: 10; transition: opacity 0.3s; }
 
 .cards { display: flex; flex-direction: column; gap: 15px; }
+/* Content-visibility Optimization for Fast Rendering */
 .card { background: var(--bg-card); border-radius: 16px; overflow: hidden; border: var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.1); content-visibility: auto; contain-intrinsic-size: 1px 300px; }
 .banner-wrapper { width: 100%; overflow: hidden; border-radius: 12px; margin: 5px 0; text-align: center; background: #000; }
 .banner-wrapper img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
@@ -203,14 +204,16 @@ const currentUserId = tg.initDataUnsafe?.user?.id || Math.floor(Math.random() * 
 let allVideos=[], filters=[], menuLinks=[];
 let adsgramIds=[], bannerAds=[]; 
 let settings={ ads_limit: 20, bot_app_link: "", monetag_id: "", cooldown: 3, img_ad_status: "off", img_ad_link: "", img_ad_limit: 2 };
-let mainUserSettings={ default_unlocks: 5, default_ads_per_unlock: 3, apply_global_video_rules: true };
+let mainUserSettings = { default_unlocks: 5, default_ads_per_unlock: 3, apply_global_video_rules: true };
+let userAdminLiveSettings = { default_total_unlocks: 5, default_ads_per_unlock: 3 };
+let userAdminDefaults = { default_unlocks: 5, default_ads_per_unlock: 3 };
 let currentFilter = 'all';
 let monetagLoaded = false;
 let dataLoaded = false;
 let deepLinkChecked = false;
 
 window.activeCooldown = 0; 
-let activeSingleVideoId = null;
+let activeSingleVideoId = null; // Track Current Single View Video
 let userLikes = [];
 let userDailyAds = { date: new Date().toDateString(), count: 0 };
 let userCategoryCounts = {}; 
@@ -229,7 +232,10 @@ function init() {
 
     onValue(ref(db, 'settings'), s => { 
         if(s.val()) {
-            settings = { ...settings, ...s.val() };
+            // Keep legacy/general settings here. Main User rules are read separately
+            // from settings/main_user so User Admin settings never overwrite them.
+            const root = s.val();
+            settings = { ...settings, ...root };
             if(settings.tutorial_id) document.getElementById('tutEmbed').innerHTML=`<iframe src="${settings.tutorial_id}" style="width:100%;height:100%;border:0" allowfullscreen></iframe>`;
             if(settings.monetag_id && !monetagLoaded) {
                 const script = document.createElement('script');
@@ -239,20 +245,45 @@ function init() {
                 document.head.appendChild(script);
                 monetagLoaded = true;
             }
-            // re-render in case bot_app_link setting was updated live
-            renderCards(); renderSingleIfActive();
         }
     });
 
-    // Main User App-এর জন্য আলাদা live settings. এটি User Admin settings থেকে সম্পূর্ণ আলাদা।
+    // MAIN USER APP LIVE SETTINGS — isolated from User Admin settings.
     onValue(ref(db, 'settings/main_user'), s => {
-        if (s.val()) {
-            mainUserSettings = { ...mainUserSettings, ...s.val() };
-            renderFilters();
-            renderCards();
-            renderSingleIfActive();
-            if(!document.getElementById('profileSec').classList.contains('hidden')) renderProfile();
-        }
+        const v = s.val() || {};
+        mainUserSettings = {
+            ...mainUserSettings,
+            default_unlocks: Number.isFinite(Number(v.default_unlocks)) ? Number(v.default_unlocks) : 5,
+            default_ads_per_unlock: Number.isFinite(Number(v.default_ads_per_unlock)) ? Number(v.default_ads_per_unlock) : 3,
+            apply_global_video_rules: v.apply_global_video_rules !== false
+        };
+        renderFilters();
+        renderCards();
+        renderSingleIfActive();
+    });
+
+    // USER ADMIN LIVE RULES — separate from Main User settings.
+    // Any video uploaded by a User Admin uses these live values.
+    onValue(ref(db, 'settings/user_admin'), s => {
+        const v = s.val() || {};
+        userAdminLiveSettings = {
+            ...userAdminLiveSettings,
+            default_total_unlocks: Number.isFinite(Number(v.default_total_unlocks)) ? Math.max(0, Number(v.default_total_unlocks)) : userAdminLiveSettings.default_total_unlocks,
+            default_ads_per_unlock: Number.isFinite(Number(v.default_ads_per_unlock)) ? Math.max(0, Number(v.default_ads_per_unlock)) : userAdminLiveSettings.default_ads_per_unlock
+        };
+        renderCards();
+        renderSingleIfActive();
+    });
+
+    onValue(ref(db, 'settings/user_video_defaults'), s => {
+        const v = s.val() || {};
+        userAdminDefaults = {
+            ...userAdminDefaults,
+            default_unlocks: Number.isFinite(Number(v.default_unlocks)) ? Math.max(0, Number(v.default_unlocks)) : userAdminDefaults.default_unlocks,
+            default_ads_per_unlock: Number.isFinite(Number(v.default_ads_per_unlock)) ? Math.max(0, Number(v.default_ads_per_unlock)) : userAdminDefaults.default_ads_per_unlock
+        };
+        renderCards();
+        renderSingleIfActive();
     });
 
     onValue(ref(db, 'ads_config'), s => { 
@@ -267,7 +298,6 @@ function init() {
     onValue(ref(db, 'links'), s => { menuLinks=[]; if(s.val()) Object.values(s.val()).forEach(v=>menuLinks.push(v)); renderLinks(); });
     onValue(ref(db, 'filters'), s => { filters=[]; if(s.val()) Object.values(s.val()).forEach(v=>filters.push(v)); renderFilters(); });
     
-    // Live synchronization logic for all video changes
     onValue(ref(db, 'videos'), s => {
         let newVideos = [];
         if(s.val()) Object.entries(s.val()).forEach(([k,v])=>newVideos.push({id:k,...v}));
@@ -278,15 +308,7 @@ function init() {
             isStructureChanged = true;
         } else {
             for(let i=0; i<newVideos.length; i++) {
-                if(
-                    newVideos[i].name !== allVideos[i].name || 
-                    newVideos[i].image_url !== allVideos[i].image_url || 
-                    newVideos[i].download_link !== allVideos[i].download_link || 
-                    newVideos[i].category !== allVideos[i].category ||
-                    newVideos[i].total_unlocks !== allVideos[i].total_unlocks ||
-                    newVideos[i].ads_per_unlock !== allVideos[i].ads_per_unlock ||
-                    newVideos[i].bot_deep_link !== allVideos[i].bot_deep_link
-                ) {
+                if(newVideos[i].name !== allVideos[i].name || newVideos[i].image_url !== allVideos[i].image_url || newVideos[i].download_link !== allVideos[i].download_link || newVideos[i].category !== allVideos[i].category) {
                     isStructureChanged = true; break;
                 }
             }
@@ -310,28 +332,11 @@ function init() {
     });
 }
 
-function buildBotDeepLink(videoId) {
-    const bot = (settings.bot_app_link || settings.bot_link || '').trim().replace(/\/$/, '');
-    if (!bot || !videoId) return '';
-    return bot.includes('?') ? `${bot}&startapp=${encodeURIComponent(videoId)}` : `${bot}?startapp=${encodeURIComponent(videoId)}`;
-}
-
-function openTelegramBotLink(url) {
-    if (!url) return false;
-    try {
-        if (tg?.openTelegramLink) { tg.openTelegramLink(url); return true; }
-    } catch (_) {}
-    window.open(url, '_blank');
-    return true;
-}
-
-// Fixed Deep Linking Logic for both Main Admin & User Admin videos
 function checkDeepLink() {
-    const qs = new URLSearchParams(window.location.search);
-    const startParam = tg.initDataUnsafe?.start_param || qs.get('tgWebAppStartParam') || qs.get('startapp') || qs.get('file') || qs.get('start');
+    const startParam = tg.initDataUnsafe?.start_param || new URLSearchParams(window.location.search).get('file');
     if(startParam && dataLoaded && !deepLinkChecked) {
         deepLinkChecked = true;
-        const targetVideo = allVideos.find(v => v.id === startParam || startParam.startsWith(v.id));
+        const targetVideo = allVideos.find(v => startParam.startsWith(v.id));
         if(targetVideo) { setTimeout(() => openSingle(targetVideo.id), 100); } 
         else { showToast("ভিডিওটি খুঁজে পাওয়া যায়নি!"); }
     }
@@ -366,17 +371,42 @@ window.setFilter = (id, btn) => {
 
 function renderCards() {
     const div = document.getElementById('cards');
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    const list = allVideos.filter(v => (v.name.toLowerCase().includes(q)) && (currentFilter==='all' || v.category===currentFilter));
-    div.innerHTML = list.length ? '' : '<p style="text-align:center;color:#666;margin-top:20px;">কোনো ভিডিও পাওয়া যায়নি</p>';
+    if(!div) return;
+    const input = document.getElementById('searchInput');
+    const q = (input?.value || '').toLowerCase().trim();
+    const list = allVideos.filter(v =>
+        String(v.name || '').toLowerCase().includes(q) &&
+        (currentFilter === 'all' || v.category === currentFilter)
+    );
+
+    if(!list.length) {
+        div.innerHTML = '<p style="text-align:center;color:#666;margin-top:20px;">কোনো ভিডিও পাওয়া যায়নি</p>';
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
     list.forEach((v, index) => {
-        div.appendChild(createCard(v));
+        fragment.appendChild(createCard(v, index));
         if ((index + 1) % 2 === 0 && bannerAds.length > 0) {
             const bannerDiv = document.createElement('div');
             bannerDiv.className = 'banner-wrapper';
             bannerDiv.innerHTML = bannerAds[Math.floor(Math.random() * bannerAds.length)];
-            div.appendChild(bannerDiv);
+            fragment.appendChild(bannerDiv);
         }
+    });
+    div.replaceChildren(fragment);
+
+    // Preload only the first few images. This is much faster for the initial view
+    // without downloading hundreds of images at once on large video libraries.
+    preloadFirstImages(list, 8);
+}
+
+function preloadFirstImages(list, count = 8) {
+    list.slice(0, count).forEach(v => {
+        if(!v.image_url) return;
+        const img = new Image();
+        img.decoding = 'async';
+        img.src = v.image_url;
     });
 }
 
@@ -394,26 +424,30 @@ window.handleImageClick = () => {
     }
 }
 
-function createCard(v) {
+function createCard(v, index = 0) {
     const liked = userLikes.includes(v.id);
     const count = getProgress(v.id);
-    // Main User global rule ON থাকলে Admin-এর Main User setting live apply হবে।
-    // OFF থাকলে প্রতিটি ভিডিওর নিজস্ব value ব্যবহার হবে। 0-ও valid value হিসেবে ধরা হবে।
-    const useGlobalRule = mainUserSettings.apply_global_video_rules !== false;
-    const rawReqTotal = useGlobalRule
-        ? mainUserSettings.default_unlocks
-        : (v.total_unlocks ?? v.ad_watches_required ?? 5);
-    const rawAdsPerStep = useGlobalRule
-        ? mainUserSettings.default_ads_per_unlock
-        : (v.ads_per_unlock ?? 3);
-    const reqTotal = Math.max(0, Number(rawReqTotal) || 0);
-    const adsPerStep = Math.max(0, Number(rawAdsPerStep) || 0);
+
+    // Settings are scoped:
+    // - User Admin uploads => live User Admin settings only.
+    // - Super Admin uploads/legacy videos => Main User settings (if global ON),
+    //   otherwise the video's own values.
+    const isUserAdminVideo = !!v.uploaded_by;
+    let rawUnlocks, rawAds;
+    if (isUserAdminVideo) {
+        rawUnlocks = userAdminLiveSettings.default_total_unlocks ?? userAdminDefaults.default_unlocks ?? v.total_unlocks ?? 5;
+        rawAds = userAdminLiveSettings.default_ads_per_unlock ?? userAdminDefaults.default_ads_per_unlock ?? v.ads_per_unlock ?? 3;
+    } else {
+        const useGlobal = mainUserSettings.apply_global_video_rules !== false;
+        rawUnlocks = useGlobal ? mainUserSettings.default_unlocks : v.total_unlocks;
+        rawAds = useGlobal ? mainUserSettings.default_ads_per_unlock : v.ads_per_unlock;
+    }
+    const reqTotal = Math.max(0, Number.isFinite(Number(rawUnlocks)) ? Number(rawUnlocks) : 5);
+    const adsPerStep = Math.max(0, Number.isFinite(Number(rawAds)) ? Number(rawAds) : 3);
+
     const isUnlocked = count >= reqTotal;
-    const views = v.view_count ?? v.views ?? 0;
-    const botDeepLink = buildBotDeepLink(v.id) || v.mini_app_link || '';
-    const deliveryLink = v.delivery_bot_link || '';
-    // Watch Now must deliver the selected video, not reopen the Mini App.
-    const watchLink = deliveryLink || botDeepLink;
+    const views = v.view_count || 0;
+    const watchLink = v.delivery_bot_link || v.download_link || v.bot_deep_link || '';
 
     let btnContent = isUnlocked ? '<i class="fas fa-play-circle"></i> WATCH NOW' : `<i class="fas fa-unlock"></i> UNLOCK (${count}/${reqTotal})`;
     let isDisabled = false;
@@ -425,20 +459,24 @@ function createCard(v) {
 
     const el = document.createElement('div');
     el.className = 'card';
+    const safeImg = String(v.image_url || 'https://via.placeholder.com/400').replace(/"/g, '&quot;');
+    const loadMode = index < 6 ? 'eager' : 'lazy';
+    const priority = index < 3 ? 'high' : 'auto';
+
     el.innerHTML = `
         <div class="media" onclick="handleImageClick()">
-            <img src="${v.image_url}" loading="lazy" decoding="async" onerror="this.src='https://via.placeholder.com/400'">
+            <img src="${safeImg}" loading="${loadMode}" fetchpriority="${priority}" decoding="async" onerror="this.src='https://via.placeholder.com/400'">
             <button class="heart-btn ${liked?'active':''}" onclick="event.stopPropagation(); toggleLike('${v.id}')">
                 <i class="${liked?'fas':'far'} fa-heart"></i>
             </button>
         </div>
         <div class="meta">
             <div class="meta-header">
-                <h3>${v.name}</h3>
+                <h3>${v.name || ''}</h3>
                 <div class="view-count-badge" id="view-count-${v.id}"><i class="fas fa-eye"></i> ${views}</div>
             </div>
             <div class="actions">
-                <button class="unlock-btn ${isUnlocked?'watch-now-btn':''}" ${isDisabled?'disabled':''} onclick="handleAction('${v.id}', '${watchLink}', ${reqTotal}, ${adsPerStep})">
+                <button class="unlock-btn ${isUnlocked?'watch-now-btn':''}" ${isDisabled?'disabled':''} onclick="handleAction('${v.id}', '${String(watchLink).replace(/'/g, "\\'")}', ${reqTotal}, ${adsPerStep})">
                     ${btnContent}
                 </button>
                 <button class="link-btn" onclick="copyLink('${v.id}')"><i class="fas fa-link"></i></button>
@@ -450,34 +488,41 @@ function createCard(v) {
 window.handleAction = (id, link, reqTotal, adsPerStep) => {
     if (window.activeCooldown > 0) return;
     const count = getProgress(id);
-    if(count >= reqTotal) { 
-        if(!link) { showToast('এই ভিডিওর Delivery Bot Link পাওয়া যায়নি!'); return; }
-        // Do not reset progress: resetting here made Watch Now appear locked again.
-        renderCards(); 
-        renderSingleIfActive();
-        openTelegramBotLink(link); 
-        return; 
-    }
-    if(userDailyAds.count >= (settings.ads_limit ?? 20)) { showToast("Daily limit reached!"); return; }
-    if (adsPerStep <= 0) {
-        const newProgress = reqTotal;
-        localStorage.setItem('p_'+id, newProgress);
-        set(ref(db, `users/${currentUserId}/daily_ads`), { date: new Date().toDateString(), count: userDailyAds.count });
+
+    if(count >= reqTotal) {
+        // Do not reset unlock progress. Watch Now should remain unlocked.
+        if(!link) { showToast("এই ভিডিওর Watch/Delivery Link পাওয়া যায়নি!"); return; }
         incrementViewCount(id);
-        showToast("ভিডিও আনলক হয়েছে!");
-        renderCards();
-        renderSingleIfActive();
+        window.open(link, '_blank');
         return;
     }
-    if(adsgramIds.length === 0 && !settings.monetag_id) { alert("Admin: Ads ID/Monetag সেট করুন অথবা Ads per Unlock = 0 দিন।"); return; }
+
+    // 0 ads is a valid setting and must never be blocked by the daily ad limit.
+    if(adsPerStep <= 0) {
+        playAdStep(0, 0, id, link, reqTotal);
+        return;
+    }
+
+    const dailyLimit = Number(settings.ads_limit ?? 20);
+    if(dailyLimit >= 0 && userDailyAds.count >= dailyLimit) {
+        showToast("Daily limit reached!");
+        return;
+    }
+
+    if(adsgramIds.length === 0 && !settings.monetag_id) {
+        alert("Admin: Add Adsgram IDs or Monetag ID");
+        return;
+    }
+
     showOverlay("Processing...");
     playAdStep(0, adsPerStep, id, link, reqTotal);
 }
 
 window.copyLink = (id) => {
-    const botLink = buildBotDeepLink(id);
-    if(!botLink) { showToast('Admin settings-এ Telegram Bot Link নেই!'); return; }
-    navigator.clipboard.writeText(botLink).then(()=>showToast('Bot Deep Link Copied!')).catch(()=>prompt('Copy this link:', botLink));
+    const botLink = settings.bot_app_link || "";
+    if(!botLink) { const url = window.location.origin + window.location.pathname + '?file=' + id; navigator.clipboard.writeText(url); showToast("Web Link Copied!"); return; }
+    const tgLink = `${botLink}?startapp=${id}_${currentUserId}`; 
+    navigator.clipboard.writeText(tgLink); showToast("Share Link Copied!");
 }
 
 function playAdStep(currentAdIndex, adsPerStep, videoId, link, reqTotal) {
@@ -487,7 +532,8 @@ function playAdStep(currentAdIndex, adsPerStep, videoId, link, reqTotal) {
     if (currentAdIndex >= adsPerStep) {
         const currentProgress = getProgress(videoId) + 1;
         localStorage.setItem('p_'+videoId, currentProgress);
-        set(ref(db, `users/${currentUserId}/daily_ads`), { date: new Date().toDateString(), count: userDailyAds.count + adsPerStep });
+        userDailyAds = { date: new Date().toDateString(), count: userDailyAds.count + adsPerStep };
+        set(ref(db, `users/${currentUserId}/daily_ads`), userDailyAds);
         
         if (currentProgress >= reqTotal) {
             incrementViewCount(videoId);
@@ -523,7 +569,7 @@ function playAdStep(currentAdIndex, adsPerStep, videoId, link, reqTotal) {
 }
 
 function startGlobalCooldown() {
-    window.activeCooldown = settings.cooldown || 3;
+    window.activeCooldown = Number(settings.cooldown ?? 3);
     renderCards();
     renderSingleIfActive();
     const cdTimer = setInterval(() => { 
@@ -541,7 +587,7 @@ function renderSingleIfActive() {
         if (v) {
             const cont = document.getElementById('singleCardContainer');
             cont.innerHTML = ''; 
-            cont.appendChild(createCard(v));
+            cont.appendChild(createCard(v, 0));
         }
     }
 }
