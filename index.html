@@ -401,6 +401,13 @@ window.handleAction = (id, link, reqTotal, adsPerStep) => {
     if(count >= reqTotal) {
         const targetLink = link || '';
         if (!targetLink) { showToast("ভিডিওর Bot link পাওয়া যায়নি!"); return; }
+
+        // The current unlock is single-use. Open the exact video first, then
+        // immediately reset this video's progress so the next view requires a fresh unlock.
+        localStorage.removeItem('p_' + id);
+        renderCards();
+        renderSingleIfActive();
+
         window.open(targetLink, '_blank');
         return;
     }
