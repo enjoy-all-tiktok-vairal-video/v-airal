@@ -490,12 +490,26 @@ function renderSingleIfActive() {
     }
 }
 
+const getTodayDate = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+
 function incrementViewCount(videoId) {
-    const storageKey = 'viewed_event_' + videoId;
-    if(localStorage.getItem(storageKey)) return;
-    const vidRef = ref(db, 'videos/' + videoId + '/view_count');
-    runTransaction(vidRef, (currentViews) => { return (currentViews || 0) + 1; })
-        .then(() => localStorage.setItem(storageKey, 'true')).catch(err => console.error("View update failed", err));
+    // Every successful NEW unlock completion = 1 global video view.
+    // The owner of the User Admin video also receives +1 in THEIR daily view mission only.
+    const videoRef = ref(db, 'videos/' + videoId);
+    runTransaction(videoRef, (video) => {
+        if (!video) return video;
+        const current = Math.max(Number(video.view_count) || 0, Number(video.views) || 0);
+        video.view_count = current + 1;
+        video.views = current + 1;
+        return video;
+    }).then(async result => {
+        const video = result?.snapshot?.val?.() || null;
+        const ownerUid = video?.uploaded_by;
+        if (!ownerUid) return;
+        const today = getTodayDate();
+        const ownerDailyRef = ref(db, `users/${ownerUid}/daily/${today}/view_count`);
+        await runTransaction(ownerDailyRef, current => (Number(current)||0) + 1);
+    }).catch(err => console.error('View update failed', err));
 }
 
 function showOverlay(msg) { document.getElementById('loadingOverlay').style.display = 'flex'; document.getElementById('loadingText').innerText = msg; }
