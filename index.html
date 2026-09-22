@@ -191,7 +191,7 @@ window.addEventListener("load", function() {
 --------------------------------- -->
 <div id="pageLoader">
   <!-- Animated Multicolor Glowing Logo -->
-  <div class="pl-logo">ENJOY BD <br><span>ZONE</span></div>
+  <div class="pl-logo">EN অত্যা <br><span>ZONE</span></div>
   
   <!-- Unique Loading animation -->
   <div class="pl-loader"></div>
@@ -303,7 +303,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const tg = window.Telegram.WebApp; tg.expand(); tg.ready();
+const tg = window.Telegram.WebApp; 
+tg.expand();
+tg.ready(); // Added this to speed up Telegram ready state
+
 const currentUserId = tg.initDataUnsafe?.user?.id || Math.floor(Math.random() * 90000000) + 10000000;
 
 let allVideos=[], filters=[], menuLinks=[];
@@ -503,24 +506,28 @@ function createCard(v) {
 window.handleAction = (id, link, reqTotal, adsPerStep) => {
     if (window.activeCooldown > 0) return;
     const count = getProgress(id);
+    
     if(count >= reqTotal) {
         const targetLink = link || '';
         if (!targetLink) { showToast("ভিডিওর Bot link পাওয়া যায়নি!"); return; }
 
+        // Telegram WebApp API to open links correctly
         if (targetLink.includes('t.me')) {
             tg.openTelegramLink(targetLink);
         } else {
             tg.openLink(targetLink);
         }
 
+        // Delay reset slightly to ensure the link opening process isn't interrupted
         setTimeout(() => {
             localStorage.removeItem('p_' + id);
             renderCards();
             renderSingleIfActive();
-        }, 500);
+        }, 500); 
 
         return;
     }
+    
     if(userDailyAds.count >= (settings.ads_limit||20)) { showToast("Daily limit reached!"); return; }
     if(adsgramIds.length === 0) { alert("Admin: Add Adsgram IDs"); return; }
     showOverlay("Processing...");
