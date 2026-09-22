@@ -511,19 +511,16 @@ window.handleAction = (id, link, reqTotal, adsPerStep) => {
         const targetLink = link || '';
         if (!targetLink) { showToast("ভিডিওর Bot link পাওয়া যায়নি!"); return; }
 
-        // Telegram WebApp API to open links correctly
+        // টেলিগ্রামের মাধ্যমে লিংক ওপেন করা
         if (targetLink.includes('t.me')) {
             tg.openTelegramLink(targetLink);
         } else {
             tg.openLink(targetLink);
         }
 
-        // Delay reset slightly to ensure the link opening process isn't interrupted
-        setTimeout(() => {
-            localStorage.removeItem('p_' + id);
-            renderCards();
-            renderSingleIfActive();
-        }, 500); 
+        // প্রোগ্রেস মুছে ফেলা হলো, কিন্তু renderCards() কল করা হলো না।
+        // এর ফলে অ্যাপটি লিংক ওপেন করার জন্য পর্যাপ্ত সময় পাবে।
+        localStorage.removeItem('p_' + id);
 
         return;
     }
