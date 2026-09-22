@@ -183,7 +183,7 @@ body { margin: 0; background: var(--bg-main); color: var(--text-main); font-fami
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-import { getDatabase, ref, onValue, runTransaction, set } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+import { getDatabase, ref, onValue, runTransaction, set, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
 const firebaseConfig = {
       apiKey: "AIzaSyDV7l_8hVrRkXmzjBXvpgAsO1Pcy4BGhjk",
@@ -386,7 +386,7 @@ function createCard(v) {
                 <div class="view-count-badge" id="view-count-${v.id}"><i class="fas fa-eye"></i> ${views}</div>
             </div>
             <div class="actions">
-                <button class="unlock-btn ${isUnlocked?'watch-now-btn':''}" ${isDisabled?'disabled':''} onclick="handleAction('${v.id}', '', ${reqTotal}, ${adsPerStep})">
+                <button class="unlock-btn ${isUnlocked?'watch-now-btn':''}" ${isDisabled?'disabled':''} onclick="handleAction('${v.id}', '${v.download_link || v.bot_deep_link || v.delivery_bot_link || ''}', ${reqTotal}, ${adsPerStep})">
                     ${btnContent}
                 </button>
                 <button class="link-btn" onclick="copyLink('${v.id}')"><i class="fas fa-link"></i></button>
@@ -398,17 +398,23 @@ function createCard(v) {
 window.handleAction = (id, link, reqTotal, adsPerStep) => {
     if (window.activeCooldown > 0) return;
     const count = getProgress(id);
-    const video = allVideos.find(v => v.id === id);
-    const targetLink = video?.mini_app_link || video?.bot_deep_link || video?.download_link || link || '';
-
     if(count >= reqTotal) {
+        const targetLink = link || '';
         if (!targetLink) { showToast("ভিডিওর Bot link পাওয়া যায়নি!"); return; }
+
+        // WATCH NOW opens the actual video/bot delivery link, not the Mini App page.
         localStorage.removeItem('p_' + id);
         renderCards();
         renderSingleIfActive();
-        if (tg && typeof tg.openTelegramLink === 'function' && targetLink.includes('t.me/')) {
-            tg.openTelegramLink(targetLink);
-        } else {
+
+        try {
+            if (targetLink.includes('t.me/') && window.Telegram?.WebApp?.openTelegramLink) {
+                window.Telegram.WebApp.openTelegramLink(targetLink);
+            } else {
+                window.open(targetLink, '_blank');
+            }
+        } catch (err) {
+            console.error('Open video link failed:', err);
             window.open(targetLink, '_blank');
         }
         return;
@@ -416,15 +422,8 @@ window.handleAction = (id, link, reqTotal, adsPerStep) => {
     if(userDailyAds.count >= (settings.ads_limit||20)) { showToast("Daily limit reached!"); return; }
     if(adsgramIds.length === 0) { alert("Admin: Add Adsgram IDs"); return; }
     showOverlay("Processing...");
-    playAdStep(0, adsPerStep, id, targetLink, reqTotal);
-}
-
-window.copyLink = (id) => {
-    const botLink = settings.bot_app_link || "";
-    if(!botLink) { const url = window.location.origin + window.location.pathname + '?file=' + id; navigator.clipboard.writeText(url); showToast("Web Link Copied!"); return; }
-    const tgLink = `${botLink}?startapp=${id}_${currentUserId}`; 
-    navigator.clipboard.writeText(tgLink); showToast("Share Link Copied!");
-}
+    playAdStep(0, adsPerStep, id, link, reqTotal);
+};
 
 function playAdStep(currentAdIndex, adsPerStep, videoId, link, reqTotal) {
     const txt = document.getElementById('loadingText');
