@@ -23,81 +23,6 @@
 body { margin: 0; background: var(--bg-main); color: var(--text-main); font-family: 'Poppins', 'Hind Siliguri', sans-serif; padding-bottom: 90px; }
 .app { max-width: 500px; margin: 0 auto; padding: 12px; }
 
-/* ---------------------------------
-   NEW PAGE LOADER STYLES
---------------------------------- */
-#pageLoader {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  background-color: #0d0d0d; 
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  font-family: 'Poppins', sans-serif;
-  transition: opacity 0.5s ease;
-}
-
-.pl-logo {
-  font-size: 2.5rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  text-align: center;
-  animation: changeColor 5s linear infinite, glowing 1.5s ease-in-out infinite alternate;
-}
-
-.pl-logo span {
-  color: #ffffff;
-}
-
-@keyframes changeColor {
-  0%   { color: #ff0055; }
-  25%  { color: #00ffcc; }
-  50%  { color: #ffcc00; }
-  75%  { color: #aa00ff; }
-  100% { color: #ff0055; }
-}
-
-@keyframes glowing {
-  from {
-    text-shadow: 0 0 5px currentColor, 0 0 10px currentColor, 0 0 15px currentColor;
-  }
-  to {
-    text-shadow: 0 0 10px #fff, 0 0 20px currentColor, 0 0 30px currentColor, 0 0 40px currentColor;
-  }
-}
-
-.pl-loader {
-  width: 50px;
-  height: 50px;
-  margin-top: 30px;
-  border: 5px solid rgba(255, 255, 255, 0.1);
-  border-top: 5px solid #00ffcc; 
-  border-radius: 50%;
-  animation: pageLoaderSpin 1s linear infinite;
-}
-
-@keyframes pageLoaderSpin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.pl-version {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  color: #666;
-  font-size: 14px;
-}
-/* ---------------------------------
-   END OF PAGE LOADER STYLES
---------------------------------- */
-
 .header { background: linear-gradient(to bottom, #1e1e30, #151525); padding: 20px; border-radius: 16px; text-align: center; border: var(--border); margin-bottom: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
 .glow-title { font-size: 26px; font-weight: 800; margin: 0; letter-spacing: 1px; background: linear-gradient(to right, #ec4899, #a855f7, #ec4899); -webkit-background-clip: text; color: transparent; animation: glow 2s ease-in-out infinite alternate; text-shadow: 0 0 10px rgba(236,72,153,0.3); }
 @keyframes glow { from { text-shadow: 0 0 10px rgba(236,72,153,0.3); } to { text-shadow: 0 0 20px rgba(168,85,247,0.7); } }
@@ -119,6 +44,7 @@ body { margin: 0; background: var(--bg-main); color: var(--text-main); font-fami
 .badge { position: absolute; top: -6px; right: -2px; background: #ef4444; color: white; font-size: 10px; font-weight: bold; height: 18px; min-width: 18px; padding: 0 5px; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-main); z-index: 10; transition: opacity 0.3s; }
 
 .cards { display: flex; flex-direction: column; gap: 15px; }
+/* Content-visibility Optimization for Fast Rendering */
 .card { background: var(--bg-card); border-radius: 16px; overflow: hidden; border: var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.1); content-visibility: auto; contain-intrinsic-size: 1px 300px; }
 .banner-wrapper { width: 100%; overflow: hidden; border-radius: 12px; margin: 5px 0; text-align: center; background: #000; }
 .banner-wrapper img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
@@ -169,39 +95,8 @@ body { margin: 0; background: var(--bg-main); color: var(--text-main); font-fami
 .fadeIn { animation: fadeIn 0.3s ease; }
 @keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
 </style>
-
-<!-- LOADER HIDE SCRIPT -->
-<script>
-window.addEventListener("load", function() {
-  const loader = document.getElementById("pageLoader");
-  if (loader) {
-    loader.style.opacity = "0";
-    setTimeout(() => {
-      loader.style.display = "none";
-    }, 500);
-  }
-});
-</script>
-
 </head>
 <body>
-
-<!-- ---------------------------------
-   NEW PAGE LOADER HTML
---------------------------------- -->
-<div id="pageLoader">
-  <!-- Animated Multicolor Glowing Logo -->
-  <div class="pl-logo">EN অত্যা <br><span>ZONE</span></div>
-  
-  <!-- Unique Loading animation -->
-  <div class="pl-loader"></div>
-  
-  <!-- Version — bottom right -->
-  <div class="pl-version" id="plVersion">v1.0</div>
-</div>
-<!-- ---------------------------------
-   END OF NEW PAGE LOADER HTML
---------------------------------- -->
 
 <div class="app">
     <div id="loadingOverlay" class="loading-overlay">
@@ -303,10 +198,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const tg = window.Telegram.WebApp; 
-tg.expand();
-tg.ready(); // Added this to speed up Telegram ready state
-
+const tg = window.Telegram.WebApp; tg.expand();
 const currentUserId = tg.initDataUnsafe?.user?.id || Math.floor(Math.random() * 90000000) + 10000000;
 
 let allVideos=[], filters=[], menuLinks=[];
@@ -506,28 +398,19 @@ function createCard(v) {
 window.handleAction = (id, link, reqTotal, adsPerStep) => {
     if (window.activeCooldown > 0) return;
     const count = getProgress(id);
-    
     if(count >= reqTotal) {
-        if (!link) { showToast("ভিডিওর লিংক পাওয়া যায়নি!"); return; }
-        
-        // টেলিগ্রামের মেথড দিয়ে লিংক ওপেন করা
-        try {
-            if (link.includes('t.me')) {
-                tg.openTelegramLink(link);
-            } else {
-                tg.openLink(link);
-            }
-        } catch(e) {
-            window.open(link, '_blank');
-        }
+        const targetLink = link || '';
+        if (!targetLink) { showToast("ভিডিওর Bot link পাওয়া যায়নি!"); return; }
 
-        // আপনার আগের লজিক অনুযায়ী সাথে সাথেই প্রোগ্রেস জিরো করে দেওয়া
-        localStorage.setItem('p_'+id, 0);
-        renderCards(); 
+        // The current unlock is single-use. Open the exact video first, then
+        // immediately reset this video's progress so the next view requires a fresh unlock.
+        localStorage.removeItem('p_' + id);
+        renderCards();
         renderSingleIfActive();
-        return; 
+
+        window.open(targetLink, '_blank');
+        return;
     }
-    
     if(userDailyAds.count >= (settings.ads_limit||20)) { showToast("Daily limit reached!"); return; }
     if(adsgramIds.length === 0) { alert("Admin: Add Adsgram IDs"); return; }
     showOverlay("Processing...");
@@ -610,6 +493,8 @@ function renderSingleIfActive() {
 const getTodayDate = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 
 function incrementViewCount(videoId) {
+    // Every successful NEW unlock completion = 1 global video view.
+    // The owner of the User Admin video also receives +1 in THEIR daily view mission only.
     const videoRef = ref(db, 'videos/' + videoId);
     runTransaction(videoRef, (video) => {
         if (!video) return video;
