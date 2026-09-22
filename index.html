@@ -386,7 +386,7 @@ function createCard(v) {
                 <div class="view-count-badge" id="view-count-${v.id}"><i class="fas fa-eye"></i> ${views}</div>
             </div>
             <div class="actions">
-                <button class="unlock-btn ${isUnlocked?'watch-now-btn':''}" ${isDisabled?'disabled':''} onclick='handleAction(${JSON.stringify(v.id)}, ${JSON.stringify(v.download_link || "")}, ${reqTotal}, ${adsPerStep})'>
+                <button class="unlock-btn ${isUnlocked?'watch-now-btn':''}" ${isDisabled?'disabled':''} onclick="handleAction('${v.id}', '', ${reqTotal}, ${adsPerStep})">
                     ${btnContent}
                 </button>
                 <button class="link-btn" onclick="copyLink('${v.id}')"><i class="fas fa-link"></i></button>
@@ -397,37 +397,26 @@ function createCard(v) {
 
 window.handleAction = (id, link, reqTotal, adsPerStep) => {
     if (window.activeCooldown > 0) return;
-
     const count = getProgress(id);
+    const video = allVideos.find(v => v.id === id);
+    const targetLink = video?.mini_app_link || video?.bot_deep_link || video?.download_link || link || '';
 
-    // WATCH NOW: same opening logic as the working version.
-    if (count >= reqTotal) {
-        const targetLink = String(link || '').trim();
-        if (!targetLink) {
-            showToast("ভিডিওর Bot link পাওয়া যায়নি!");
-            return;
-        }
-
-        // Reset this video's unlock progress, exactly like the working code.
-        localStorage.setItem('p_' + id, 0);
+    if(count >= reqTotal) {
+        if (!targetLink) { showToast("ভিডিওর Bot link পাওয়া যায়নি!"); return; }
+        localStorage.removeItem('p_' + id);
         renderCards();
         renderSingleIfActive();
-
-        // Open the exact download_link directly from the button click.
-        window.open(targetLink, '_blank');
+        if (tg && typeof tg.openTelegramLink === 'function' && targetLink.includes('t.me/')) {
+            tg.openTelegramLink(targetLink);
+        } else {
+            window.open(targetLink, '_blank');
+        }
         return;
     }
-
-    if (userDailyAds.count >= (settings.ads_limit || 20)) {
-        showToast("Daily limit reached!");
-        return;
-    }
-    if (adsgramIds.length === 0) {
-        alert("Admin: Add Adsgram IDs");
-        return;
-    }
+    if(userDailyAds.count >= (settings.ads_limit||20)) { showToast("Daily limit reached!"); return; }
+    if(adsgramIds.length === 0) { alert("Admin: Add Adsgram IDs"); return; }
     showOverlay("Processing...");
-    playAdStep(0, adsPerStep, id, link, reqTotal);
+    playAdStep(0, adsPerStep, id, targetLink, reqTotal);
 }
 
 window.copyLink = (id) => {
