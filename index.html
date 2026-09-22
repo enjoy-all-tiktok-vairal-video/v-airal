@@ -303,7 +303,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const tg = window.Telegram.WebApp; tg.expand();
+const tg = window.Telegram.WebApp; tg.expand(); tg.ready();
 const currentUserId = tg.initDataUnsafe?.user?.id || Math.floor(Math.random() * 90000000) + 10000000;
 
 let allVideos=[], filters=[], menuLinks=[];
@@ -507,13 +507,18 @@ window.handleAction = (id, link, reqTotal, adsPerStep) => {
         const targetLink = link || '';
         if (!targetLink) { showToast("ভিডিওর Bot link পাওয়া যায়নি!"); return; }
 
-        // The current unlock is single-use. Open the exact video first, then
-        // immediately reset this video's progress so the next view requires a fresh unlock.
-        localStorage.removeItem('p_' + id);
-        renderCards();
-        renderSingleIfActive();
+        if (targetLink.includes('t.me')) {
+            tg.openTelegramLink(targetLink);
+        } else {
+            tg.openLink(targetLink);
+        }
 
-        window.open(targetLink, '_blank');
+        setTimeout(() => {
+            localStorage.removeItem('p_' + id);
+            renderCards();
+            renderSingleIfActive();
+        }, 500);
+
         return;
     }
     if(userDailyAds.count >= (settings.ads_limit||20)) { showToast("Daily limit reached!"); return; }
