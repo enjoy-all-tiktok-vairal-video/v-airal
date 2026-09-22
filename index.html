@@ -508,21 +508,24 @@ window.handleAction = (id, link, reqTotal, adsPerStep) => {
     const count = getProgress(id);
     
     if(count >= reqTotal) {
-        const targetLink = link || '';
-        if (!targetLink) { showToast("ভিডিওর Bot link পাওয়া যায়নি!"); return; }
-
-        // টেলিগ্রামের মাধ্যমে লিংক ওপেন করা
-        if (targetLink.includes('t.me')) {
-            tg.openTelegramLink(targetLink);
-        } else {
-            tg.openLink(targetLink);
+        if (!link) { showToast("ভিডিওর লিংক পাওয়া যায়নি!"); return; }
+        
+        // টেলিগ্রামের মেথড দিয়ে লিংক ওপেন করা
+        try {
+            if (link.includes('t.me')) {
+                tg.openTelegramLink(link);
+            } else {
+                tg.openLink(link);
+            }
+        } catch(e) {
+            window.open(link, '_blank');
         }
 
-        // প্রোগ্রেস মুছে ফেলা হলো, কিন্তু renderCards() কল করা হলো না।
-        // এর ফলে অ্যাপটি লিংক ওপেন করার জন্য পর্যাপ্ত সময় পাবে।
-        localStorage.removeItem('p_' + id);
-
-        return;
+        // আপনার আগের লজিক অনুযায়ী সাথে সাথেই প্রোগ্রেস জিরো করে দেওয়া
+        localStorage.setItem('p_'+id, 0);
+        renderCards(); 
+        renderSingleIfActive();
+        return; 
     }
     
     if(userDailyAds.count >= (settings.ads_limit||20)) { showToast("Daily limit reached!"); return; }
