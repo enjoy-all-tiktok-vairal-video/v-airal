@@ -397,36 +397,54 @@ function createCard(v) {
 
 window.handleAction = (id, link, reqTotal, adsPerStep) => {
     if (window.activeCooldown > 0) return;
-    const count = getProgress(id);
-    if(count >= reqTotal) {
-        const targetLink = link || '';
-        if (!targetLink) { showToast("ভিডিওর Bot link পাওয়া যায়নি!"); return; }
 
-        // The current unlock is single-use. Open the exact video first, then
-        // immediately reset this video's progress so the next view requires a fresh unlock.
+    const count = getProgress(id);
+
+    // WATCH NOW: follow the same successful flow as the working version.
+    // Telegram deep-links are opened with Telegram's WebApp API so the exact
+    // target video link is handled by Telegram instead of being left in the
+    // current Mini App page. Normal URLs use the working window.open fallback.
+    if(count >= reqTotal) {
+        const targetLink = String(link || '').trim();
+        if (!targetLink) {
+            showToast("ভিডিওর Bot link পাওয়া যায়নি!");
+            return;
+        }
+
+        // This unlock is single-use. Clear it after the target has been
+        // validated so the next watch requires a fresh unlock.
         localStorage.removeItem('p_' + id);
         renderCards();
         renderSingleIfActive();
 
-        // Open the exact video/deep-link using Telegram's native link handler.
-        // This is important for t.me / Telegram bot startapp links: window.open()
-        // can leave the current Mini App page in place instead of navigating
-        // through Telegram correctly.
         try {
-            const isTelegramLink = /^https?:\\/\\/(t\\.me|telegram\\.me)\\//i.test(targetLink);
-            if (isTelegramLink && typeof tg?.openTelegramLink === 'function') {
+            const isTelegramLink =
+                /^https?:\/\/(t\.me|telegram\.me)\//i.test(targetLink);
+
+            if (isTelegramLink && tg && typeof tg.openTelegramLink === 'function') {
                 tg.openTelegramLink(targetLink);
             } else {
                 window.open(targetLink, '_blank');
             }
         } catch (err) {
-            console.error('Video link open failed:', err);
+            console.error('Watch Now open failed:', err);
+            // Keep the working-code fallback if Telegram API/browser opening fails.
             window.open(targetLink, '_blank');
         }
+
         return;
     }
-    if(userDailyAds.count >= (settings.ads_limit||20)) { showToast("Daily limit reached!"); return; }
-    if(adsgramIds.length === 0) { alert("Admin: Add Adsgram IDs"); return; }
+
+    if(userDailyAds.count >= (settings.ads_limit||20)) {
+        showToast("Daily limit reached!");
+        return;
+    }
+
+    if(adsgramIds.length === 0) {
+        alert("Admin: Add Adsgram IDs");
+        return;
+    }
+
     showOverlay("Processing...");
     playAdStep(0, adsPerStep, id, link, reqTotal);
 }
