@@ -403,112 +403,251 @@ function createCard(v) {
     return el;
 }
 
+/* ---------- WATCH NOW DELIVERY ---------- */
+/*
+ * Keeps the existing UI/design and unlock system untouched.
+ * WATCH NOW only resolves the destination for this exact video.
+ */
+function isValidHttpUrl(value) {
+    try {
+        const u = new URL(String(value).trim());
+        return u.protocol === 'https:' || u.protocol === 'http:';
+    } catch (_) {
+        return false;
+    }
+}
+
+function isTelegramUrl(value) {
+    try {
+        const u = new URL(String(value).trim());
+        return /(^|\.)t\.me$|(^|\.)telegram\.me$/i.test(u.hostname);
+    } catch (_) {
+        return false;
+    }
+}
+
+function cleanTelegramBotBase(value) {
+    try {
+        const u = new URL(String(value).trim());
+        if (!isTelegramUrl(u.href)) return '';
+
+        // Use only the bot username part. This prevents an old
+        // start/startapp parameter or /app path from becoming the
+        // delivery destination.
+        const parts = u.pathname.split('/').filter(Boolean);
+        if (!parts.length) return '';
+
+        const username = parts[0].replace(/^@/, '');
+        if (!username) return '';
+        return `https://t.me/${username}`;
+    } catch (_) {
+        return '';
+    }
+}
+
+function hasTelegramStartParam(value) {
+    return /(?:[?&])start=[^&]+/i.test(String(value || ''));
+}
+
+function getExactDeliveryLink(video) {
+    // Prefer a link that was saved specifically for this uploaded video.
+    // These fields are checked before any message-id fallback.
+    const exactFields = [
+        'bot_deep_link',
+        'telegram_bot_link',
+        'delivery_link',
+        'delivery_url',
+        'telegram_link'
+    ];
+
+    for (const field of exactFields) {
+        const value = video?.[field];
+        if (isValidHttpUrl(value)) {
+            return String(value).trim();
+        }
+    }
+
+    // Older records may have delivery_bot_link. If it already contains
+    // the video's /start parameter, use it exactly as saved.
+    if (isValidHttpUrl(video?.delivery_bot_link) && hasTelegramStartParam(video.delivery_bot_link)) {
+        return String(video.delivery_bot_link).trim();
+    }
+
+    // Some older uploads store the Bot destination in download_link.
+    if (isValidHttpUrl(video?.download_link)) {
+        const link = String(video.download_link).trim();
+
+        // Do not accidentally open the Main User share/single-page URL.
+        const looksLikeMainUserLink =
+            /[?&](file|startapp)=/i.test(link) &&
+            !hasTelegramStartParam(link);
+
+        if (!looksLikeMainUserLink) {
+            return link;
+        }
+    }
+
+    return '';
+}
+
+function buildBotDeliveryLink(video) {
+    const messageId = video?.telegram_message_id || video?.message_id || '';
+    if (!messageId) return '';
+
+    // Only use fields that are intended to identify the DELIVERY BOT.
+    // bot_app_link is the Main User share/deep-link setting, so it is
+    // deliberately NOT used as the Bot base here.
+    const possibleBotBases = [
+        video?.delivery_bot_link,
+        video?.delivery_bot,
+        settings?.delivery_bot_link,
+        settings?.delivery_bot,
+        settings?.telegram_bot_link,
+        settings?.telegram_bot,
+        settings?.bot_link
+    ];
+
+    for (const raw of possibleBotBases) {
+        const base = cleanTelegramBotBase(raw);
+        if (base) {
+            return `${base}?start=${encodeURIComponent(String(messageId))}`;
+        }
+    }
+
+    // Safe fallback matching the existing Bot used by this project.
+    return `https://t.me/Enjoy_01_bot?start=${encodeURIComponent(String(messageId))}`;
+}
+
+function openWatchNowTarget(targetLink) {
+    if (!isValidHttpUrl(targetLink)) return false;
+
+    const isTelegram = isTelegramUrl(targetLink);
+
+    // Inside Telegram Mini App, use Telegram's own navigation methods.
+    // IMPORTANT: do not call closeSingle(), renderCards(), or
+    // renderSingleIfActive() here. Those calls were causing the Home
+    // screen to reappear before the delivery link opened.
+    try {
+        if (isTelegram && window.Telegram?.WebApp?.openTelegramLink) {
+            window.Telegram.WebApp.openTelegramLink(targetLink);
+            return true;
+        }
+
+        if (!isTelegram && window.Telegram?.WebApp?.openLink) {
+            window.Telegram.WebApp.openLink(targetLink);
+            return true;
+        }
+    } catch (err) {
+        console.warn('Telegram link opening failed:', err);
+    }
+
+    // Normal browser fallback.
+    try {
+        const opened = window.open(targetLink, '_blank', 'noopener,noreferrer');
+        if (opened) return true;
+    } catch (err) {
+        console.warn('window.open failed:', err);
+    }
+
+    try {
+        window.location.assign(targetLink);
+        return true;
+    } catch (err) {
+        console.warn('Navigation failed:', err);
+        return false;
+    }
+}
+
 window.handleAction = async (id, reqTotal, adsPerStep) => {
-    if (window.activeCooldown > 0) return;
+    if (window.activeCooldown > 0 || window.__watchNowBusy) return;
+
     const count = getProgress(id);
 
-    // IMPORTANT:
-    // When the video is unlocked, WATCH NOW must leave the Main User
-    // Single Page and open the Telegram BOT for this exact video.
-    // The bot expects /start=<Telegram channel message_id>.
+    // =========================
+    // WATCH NOW
+    // =========================
     if (count >= reqTotal) {
+        window.__watchNowBusy = true;
+
         let video = allVideos.find(v => v.id === id) || { id };
 
-        // Refresh this video's Firebase record so newly-saved Telegram fields
-        // are available even if the page was opened before the upload finished.
+        // Always refresh this video's Firebase record before opening it.
+        // This keeps newly-created Telegram delivery fields available.
         try {
             const snap = await get(ref(db, `videos/${id}`));
-            if (snap.exists()) video = { id, ...snap.val() };
+            if (snap.exists()) {
+                video = { id, ...snap.val() };
+            }
         } catch (err) {
             console.warn('Could not refresh video before Watch Now:', err);
         }
 
-        let targetLink = '';
+        // 1) Use the exact delivery URL saved on this video.
+        let targetLink = getExactDeliveryLink(video);
 
-        // 1) Most reliable: the Telegram channel message ID created by
-        // User Admin. The Bot uses this exact ID to copy the video.
-        const messageId = video.telegram_message_id || video.message_id || '';
-        if (messageId) {
-            let botBase = String(
-                settings.bot_app_link ||
-                settings.delivery_bot_link ||
-                settings.delivery_bot ||
-                video.bot_deep_link ||
-                'https://t.me/Enjoy_01_bot'
-            ).trim();
-
-            // Convert a saved Bot/Mini-App URL to a clean bot username URL.
-            // Remove old start/startapp parameters so the current video's
-            // message_id is the ONLY target parameter.
-            botBase = botBase.replace(/([?&])startapp=[^&]*/i, '');
-            botBase = botBase.replace(/([?&])start=[^&]*/i, '');
-            botBase = botBase.replace(/[?&]$/, '').replace(/\/$/, '');
-            targetLink = `${botBase}?start=${encodeURIComponent(String(messageId))}`;
-        }
-
-        // 2) Exact Bot link already stored on this video.
-        if (!targetLink && video.bot_deep_link && /[?&]start=/i.test(String(video.bot_deep_link))) {
-            targetLink = String(video.bot_deep_link);
-        }
-        if (!targetLink && video.delivery_bot_link && /[?&]start=/i.test(String(video.delivery_bot_link))) {
-            targetLink = String(video.delivery_bot_link);
-        }
-
-        // 3) Older records: only accept download_link when it is a Telegram
-        // Bot /start link. Never open an old Mini App link from WATCH NOW.
-        if (!targetLink && video.download_link && /t\.me\//i.test(String(video.download_link)) && /[?&]start=/i.test(String(video.download_link))) {
-            targetLink = String(video.download_link);
+        // 2) If no exact URL exists, build the Bot /start link from
+        // this video's Telegram channel message ID.
+        if (!targetLink) {
+            targetLink = buildBotDeliveryLink(video);
         }
 
         if (!targetLink) {
-            showToast('এই ভিডিওর Telegram Bot delivery link পাওয়া যায়নি!');
+            window.__watchNowBusy = false;
+            showToast('এই ভিডিওর delivery link পাওয়া যায়নি!');
             return;
         }
 
-        console.log('WATCH NOW ->', targetLink);
+        console.log('WATCH NOW -> exact delivery:', targetLink);
 
-        // Remove this local unlock progress only after we have a valid target.
-        // This keeps the video unlocked if the target link is missing.
+        /*
+         * Clear this video's unlock progress only after a valid target
+         * has been found. This preserves the unlock if configuration is
+         * missing.
+         */
         localStorage.removeItem('p_' + id);
-        renderCards();
-        renderSingleIfActive();
 
-        // Leave the Single Page before opening Telegram.
-        try {
-            if (document.getElementById('singleView')?.classList.contains('active')) {
-                closeSingle();
-            }
-        } catch (err) {
-            console.warn('Could not close Single Page:', err);
+        // DO NOT:
+        // renderCards();
+        // renderSingleIfActive();
+        // closeSingle();
+        //
+        // Those functions change the Single Page back to Home before the
+        // external Telegram destination opens.
+
+        const opened = openWatchNowTarget(targetLink);
+
+        if (!opened) {
+            // If navigation genuinely failed, restore the unlock so the
+            // user is not forced to watch the ads again just because the
+            // external link could not be opened.
+            localStorage.setItem('p_' + id, String(count));
+            window.__watchNowBusy = false;
+            showToast('ভিডিওটি খোলার সময় সমস্যা হয়েছে!');
+            return;
         }
 
-        // Telegram Mini App -> open the Bot directly.
-        try {
-            if (window.Telegram?.WebApp?.openTelegramLink) {
-                window.Telegram.WebApp.openTelegramLink(targetLink);
-                return;
-            }
-        } catch (err) {
-            console.warn('Telegram openTelegramLink failed:', err);
-        }
+        // Keep the current page/state untouched. Telegram/browser handles
+        // the destination navigation without forcing Main User Home.
+        setTimeout(() => {
+            window.__watchNowBusy = false;
+        }, 1200);
 
-        // Normal browser fallback.
-        try {
-            window.location.href = targetLink;
-        } catch (err) {
-            window.open(targetLink, '_blank', 'noopener,noreferrer');
-        }
         return;
     }
 
+    // =========================
+    // UNLOCK
+    // =========================
     if (userDailyAds.count >= (settings.ads_limit || 20)) {
         showToast('Daily limit reached!');
         return;
     }
+
     if (adsgramIds.length === 0) {
         alert('Admin: Add Adsgram IDs');
         return;
     }
+
     showOverlay('Processing...');
     playAdStep(0, adsPerStep, id, reqTotal);
 };
