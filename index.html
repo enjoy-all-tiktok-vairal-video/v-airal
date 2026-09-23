@@ -265,7 +265,7 @@ function init() {
             isStructureChanged = true;
         } else {
             for(let i=0; i<newVideos.length; i++) {
-                if(newVideos[i].name !== allVideos[i].name || newVideos[i].image_url !== allVideos[i].image_url || newVideos[i].download_link !== allVideos[i].download_link || newVideos[i].category !== allVideos[i].category) {
+                if(newVideos[i].name !== allVideos[i].name || newVideos[i].image_url !== allVideos[i].image_url || newVideos[i].download_link !== allVideos[i].download_link || newVideos[i].category !== allVideos[i].category || newVideos[i].telegram_message_id !== allVideos[i].telegram_message_id || newVideos[i].message_id !== allVideos[i].message_id) {
                     isStructureChanged = true; break;
                 }
             }
@@ -405,80 +405,85 @@ function createCard(v) {
 
 window.handleAction = async (id, reqTotal, adsPerStep) => {
     if (window.activeCooldown > 0) return;
+
     const count = getProgress(id);
 
+    // =========================================================
+    // WATCH NOW -> DELIVERY BOT
+    // =========================================================
     // IMPORTANT:
-    // When the video is unlocked, WATCH NOW must leave the Main User
-    // Single Page and open the Telegram BOT for this exact video.
-    // The bot expects /start=<Telegram channel message_id>.
+    // Main User Mini App-এর bot_app_link এখানে কখনো ব্যবহার করা হবে না।
+    // WATCH NOW সবসময় Delivery Bot-এ যাবে।
+    // User Admin/Worker থেকে পাওয়া Telegram message_id-ই /start target।
+    // =========================================================
     if (count >= reqTotal) {
         let video = allVideos.find(v => v.id === id) || { id };
 
-        // Refresh this video's Firebase record so newly-saved Telegram fields
-        // are available even if the page was opened before the upload finished.
+        // Firebase থেকে latest video record নিই।
+        // User Admin upload শেষ হওয়ার পরে save হওয়া message_id এখান থেকে পাওয়া যাবে।
         try {
             const snap = await get(ref(db, `videos/${id}`));
-            if (snap.exists()) video = { id, ...snap.val() };
+            if (snap.exists()) {
+                video = { id, ...snap.val() };
+            }
         } catch (err) {
             console.warn('Could not refresh video before Watch Now:', err);
         }
 
-        let targetLink = '';
+        // User Admin/Worker-এর Telegram sendVideo response থেকে আসা ID.
+        // দুইটি common field support করছি যাতে পুরোনো video record-ও কাজ করে।
+        const rawMessageId =
+            video.telegram_message_id ??
+            video.message_id ??
+            video.telegramMessageId ??
+            '';
 
-        // Telegram channel message ID created by User Admin.
-        // WATCH NOW must always open the DELIVERY BOT, not the Main User
-        // Mini App. The bot receives this exact message_id through /start.
-        const messageId = video.telegram_message_id || video.message_id || '';
+        const messageId = String(rawMessageId).trim();
 
-        if (messageId) {
-            // IMPORTANT: bot_app_link is the Main User Mini App/share link.
-            // Do NOT use it here because it can create a startapp link and
-            // bring the user back to the Main User home.
-            const botBase = String(
-                settings.delivery_bot_link ||
-                settings.delivery_bot ||
-                'https://t.me/Enjoy_01_bot'
-            ).trim().replace(/\/+$/, '');
-
-            targetLink = `${botBase}?start=${encodeURIComponent(String(messageId))}`;
-        }
-
-        // Existing exact delivery-bot links are accepted for older records.
-        if (!targetLink && video.bot_deep_link && /t\.me\//i.test(String(video.bot_deep_link)) && /[?&]start=/i.test(String(video.bot_deep_link))) {
-            targetLink = String(video.bot_deep_link);
-        }
-        if (!targetLink && video.delivery_bot_link && /t\.me\//i.test(String(video.delivery_bot_link)) && /[?&]start=/i.test(String(video.delivery_bot_link))) {
-            targetLink = String(video.delivery_bot_link);
-        }
-
-        // Older records: accept download_link only when it is already a
-        // Telegram Bot /start link. Never use a Main User startapp link here.
-        if (!targetLink && video.download_link && /t\.me\//i.test(String(video.download_link)) && /[?&]start=/i.test(String(video.download_link))) {
-            targetLink = String(video.download_link);
-        }
-
-        if (!targetLink) {
-            showToast('এই ভিডিওর Telegram Bot delivery link পাওয়া যায়নি!');
+        if (!messageId) {
+            console.error('WATCH NOW: Telegram message_id missing.', {
+                videoId: id,
+                video: video
+            });
+            showToast('এই ভিডিওর Telegram message ID পাওয়া যায়নি!');
             return;
         }
 
-        console.log('WATCH NOW ->', targetLink);
+        // =====================================================
+        // FIXED DELIVERY BOT URL
+        // =====================================================
+        // Screenshot-এর ERR_NAME_NOT_RESOLVED সমস্যার কারণ ছিল
+        // Firebase-এর ভুল delivery_bot_link/Enjoy 999 value ব্যবহার হওয়া।
+        // তাই WATCH NOW-এর জন্য Bot username এখানে নির্দিষ্ট রাখা হয়েছে।
+        // =====================================================
+        const DELIVERY_BOT_USERNAME = 'Enjoy_01_bot';
 
-        // Remove this local unlock progress only after we have a valid target.
-        // This keeps the video unlocked if the target link is missing.
+        const targetLink =
+            `https://t.me/${DELIVERY_BOT_USERNAME}?start=${encodeURIComponent(messageId)}`;
+
+        console.log('WATCH NOW -> DELIVERY BOT:', targetLink);
+
+        // Valid target তৈরি হওয়ার পর unlock progress clear করি।
         localStorage.removeItem('p_' + id);
-        renderCards();
-        renderSingleIfActive();
 
-        // IMPORTANT: Do NOT call closeSingle() here.
-        // closeSingle() returns the Main User UI to the home page. If the
-        // Telegram navigation is delayed or blocked, that makes it look like
-        // WATCH NOW opened the Main User home instead of the Delivery Bot.
-        // Open the Bot first and leave the current view untouched.
-
-        // Telegram Mini App -> open the Bot directly.
         try {
-            if (window.Telegram?.WebApp?.openTelegramLink) {
+            renderCards();
+            renderSingleIfActive();
+        } catch (err) {
+            console.warn('UI refresh after unlock failed:', err);
+        }
+
+        // =====================================================
+        // IMPORTANT:
+        // closeSingle() এখানে আগে call করা হবে না।
+        // আগে Telegram Bot open করার চেষ্টা হবে।
+        // =====================================================
+        try {
+            if (
+                window.Telegram &&
+                window.Telegram.WebApp &&
+                typeof window.Telegram.WebApp.openTelegramLink === 'function'
+            ) {
                 window.Telegram.WebApp.openTelegramLink(targetLink);
                 return;
             }
@@ -486,23 +491,37 @@ window.handleAction = async (id, reqTotal, adsPerStep) => {
             console.warn('Telegram openTelegramLink failed:', err);
         }
 
-        // Normal browser fallback.
+        // Telegram WebApp API unavailable হলে browser fallback.
+        try {
+            window.open(targetLink, '_blank', 'noopener,noreferrer');
+            return;
+        } catch (err) {
+            console.warn('window.open failed:', err);
+        }
+
         try {
             window.location.href = targetLink;
         } catch (err) {
-            window.open(targetLink, '_blank', 'noopener,noreferrer');
+            console.error('Could not open Delivery Bot:', err);
+            showToast('Telegram Bot খোলা যাচ্ছে না!');
         }
+
         return;
     }
 
+    // =========================================================
+    // NOT UNLOCKED YET
+    // =========================================================
     if (userDailyAds.count >= (settings.ads_limit || 20)) {
         showToast('Daily limit reached!');
         return;
     }
+
     if (adsgramIds.length === 0) {
         alert('Admin: Add Adsgram IDs');
         return;
     }
+
     showOverlay('Processing...');
     playAdStep(0, adsPerStep, id, reqTotal);
 };
