@@ -183,7 +183,7 @@ body { margin: 0; background: var(--bg-main); color: var(--text-main); font-fami
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-import { getDatabase, ref, onValue, runTransaction, set } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+import { getDatabase, ref, onValue, runTransaction, set, get } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
 const firebaseConfig = {
       apiKey: "AIzaSyDV7l_8hVrRkXmzjBXvpgAsO1Pcy4BGhjk",
@@ -386,7 +386,7 @@ function createCard(v) {
                 <div class="view-count-badge" id="view-count-${v.id}"><i class="fas fa-eye"></i> ${views}</div>
             </div>
             <div class="actions">
-                <button class="unlock-btn ${isUnlocked?'watch-now-btn':''}" ${isDisabled?'disabled':''} onclick="handleAction('${v.id}', '${v.download_link}', ${reqTotal}, ${adsPerStep})">
+                <button class="unlock-btn ${isUnlocked?'watch-now-btn':''}" ${isDisabled?'disabled':''} onclick="handleAction('${v.id}', ${reqTotal}, ${adsPerStep})">
                     ${btnContent}
                 </button>
                 <button class="link-btn" onclick="copyLink('${v.id}')"><i class="fas fa-link"></i></button>
@@ -395,27 +395,39 @@ function createCard(v) {
     return el;
 }
 
-window.handleAction = (id, link, reqTotal, adsPerStep) => {
+window.handleAction = async (id, reqTotal, adsPerStep) => {
     if (window.activeCooldown > 0) return;
     const count = getProgress(id);
     if(count >= reqTotal) {
-        const targetLink = link || '';
-        if (!targetLink) { showToast("ভিডিওর Bot link পাওয়া যায়নি!"); return; }
-
-        // The current unlock is single-use. Open the exact video first, then
-        // immediately reset this video's progress so the next view requires a fresh unlock.
+        let video = allVideos.find(v => v.id === id);
+        let targetLink = '';
+        try {
+            const snap = await get(ref(db, `videos/${id}`));
+            if (snap.exists()) video = { id, ...snap.val() };
+        } catch (err) {
+            console.error('Video link fetch failed:', err);
+        }
+        if (video) {
+            targetLink = video.bot_deep_link || video.download_link || video.delivery_bot_link || video.mini_app_link || '';
+        }
+        if (!targetLink) { showToast("ভিডিওর Telegram link পাওয়া যায়নি!"); return; }
         localStorage.removeItem('p_' + id);
         renderCards();
         renderSingleIfActive();
-
-        window.open(targetLink, '_blank');
+        try {
+            if (window.Telegram?.WebApp?.openTelegramLink) window.Telegram.WebApp.openTelegramLink(targetLink);
+            else window.open(targetLink, '_blank');
+        } catch (err) {
+            console.error('Open Telegram video link failed:', err);
+            window.open(targetLink, '_blank');
+        }
         return;
     }
     if(userDailyAds.count >= (settings.ads_limit||20)) { showToast("Daily limit reached!"); return; }
     if(adsgramIds.length === 0) { alert("Admin: Add Adsgram IDs"); return; }
     showOverlay("Processing...");
-    playAdStep(0, adsPerStep, id, link, reqTotal);
-}
+    playAdStep(0, adsPerStep, id, reqTotal);
+};
 
 window.copyLink = (id) => {
     const botLink = settings.bot_app_link || "";
@@ -424,7 +436,7 @@ window.copyLink = (id) => {
     navigator.clipboard.writeText(tgLink); showToast("Share Link Copied!");
 }
 
-function playAdStep(currentAdIndex, adsPerStep, videoId, link, reqTotal) {
+function playAdStep(currentAdIndex, adsPerStep, videoId, reqTotal) {
     const txt = document.getElementById('loadingText');
     const sub = document.getElementById('loadingSub');
 
@@ -454,14 +466,14 @@ function playAdStep(currentAdIndex, adsPerStep, videoId, link, reqTotal) {
         if (currentAdIndex === 1 && settings.monetag_id) {
             const sdkFunc = window['show_' + settings.monetag_id];
             if (typeof sdkFunc === 'function') { 
-                sdkFunc().then(() => playAdStep(currentAdIndex + 1, adsPerStep, videoId, link, reqTotal)).catch(() => playAdStep(currentAdIndex + 1, adsPerStep, videoId, link, reqTotal)); 
-            } else { playAdStep(currentAdIndex + 1, adsPerStep, videoId, link, reqTotal); }
+                sdkFunc().then(() => playAdStep(currentAdIndex + 1, adsPerStep, videoId, reqTotal)).catch(() => playAdStep(currentAdIndex + 1, adsPerStep, videoId, reqTotal)); 
+            } else { playAdStep(currentAdIndex + 1, adsPerStep, videoId, reqTotal); }
         } else {
             if (window.Adsgram && adsgramIds.length > 0) {
                 const blockId = adsgramIds[currentAdIndex % adsgramIds.length];
                 const AdController = window.Adsgram.init({ blockId: blockId });
-                AdController.show().then(() => playAdStep(currentAdIndex + 1, adsPerStep, videoId, link, reqTotal)).catch(() => playAdStep(currentAdIndex + 1, adsPerStep, videoId, link, reqTotal));
-            } else { playAdStep(currentAdIndex + 1, adsPerStep, videoId, link, reqTotal); }
+                AdController.show().then(() => playAdStep(currentAdIndex + 1, adsPerStep, videoId, reqTotal)).catch(() => playAdStep(currentAdIndex + 1, adsPerStep, videoId, reqTotal));
+            } else { playAdStep(currentAdIndex + 1, adsPerStep, videoId, reqTotal); }
         }
     }, 1500); 
 }
