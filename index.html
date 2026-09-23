@@ -205,6 +205,7 @@ let allVideos=[], filters=[], menuLinks=[];
 let adsgramIds=[], bannerAds=[]; 
 let settings={ ads_limit: 20, bot_app_link: "", monetag_id: "", cooldown: 3, img_ad_status: "off", img_ad_link: "", img_ad_limit: 2 };
 let currentFilter = 'all';
+let currentFilterKey = 'all';
 let monetagLoaded = false;
 let dataLoaded = false;
 let deepLinkChecked = false;
@@ -229,7 +230,7 @@ function init() {
 
     onValue(ref(db, 'settings'), s => { 
         if(s.val()) {
-            settings = s.val();
+            settings = { ...settings, ...(s.val() || {}) };
             if(settings.tutorial_id) document.getElementById('tutEmbed').innerHTML=`<iframe src="${settings.tutorial_id}" style="width:100%;height:100%;border:0" allowfullscreen></iframe>`;
             if(settings.monetag_id && !monetagLoaded) {
                 const script = document.createElement('script');
@@ -305,25 +306,32 @@ function renderFilters() {
     if(!div) return;
     let allCount = getCount('all');
     let unseenAll = allCount - (userCategoryCounts['all'] || 0);
-    let html = `<button class="filter-btn ${currentFilter==='all'?'active':''}" onclick="setFilter('all', this)">All ${unseenAll > 0 ? `<span class="badge">${unseenAll}</span>` : ''}</button>`;
+    let html = `<button class="filter-btn ${currentFilter==='all'?'active':''}" onclick="setFilter('all', 'all')">All ${unseenAll > 0 ? `<span class="badge">${unseenAll}</span>` : ''}</button>`;
     
-    filters.forEach(f => {
+    filters.forEach((f, index) => {
+        // Use a unique UI key as well as the Firebase category id.
+        // If two category records accidentally have the same id, only the
+        // category that was actually clicked is highlighted.
+        const filterKey = String(f.id) + '__' + index;
         let catCount = getCount(f.id);
         let unseenCat = catCount - (userCategoryCounts[f.id] || 0);
-        html += `<button class="filter-btn ${currentFilter===f.id?'active':''}" onclick="setFilter('${f.id}', this)">${f.name} ${unseenCat > 0 ? `<span class="badge">${unseenCat}</span>` : ''}</button>`;
+        html += `<button class="filter-btn ${currentFilterKey===filterKey?'active':''}" onclick="setFilter('${String(f.id).replace(/'/g, "\\'")}', '${filterKey.replace(/'/g, "\\'")}')">${f.name} ${unseenCat > 0 ? `<span class="badge">${unseenCat}</span>` : ''}</button>`;
     });
     div.innerHTML = html;
 }
 
-window.setFilter = (id, btn) => { 
-    currentFilter = id; 
+window.setFilter = (id, filterKey) => {
+    // One click selects exactly one category.
+    currentFilter = id;
+    currentFilterKey = filterKey || id;
     const currentCount = getCount(id);
     if((userCategoryCounts[id] || 0) < currentCount) {
-        userCategoryCounts[id] = currentCount; 
-        set(ref(db, `users/${currentUserId}/category_counts/${id}`), currentCount); 
+        userCategoryCounts[id] = currentCount;
+        set(ref(db, `users/${currentUserId}/category_counts/${id}`), currentCount);
     }
-    renderFilters(); renderCards(); 
-}
+    renderFilters();
+    renderCards();
+};
 
 function renderCards() {
     const div = document.getElementById('cards');
@@ -408,9 +416,20 @@ window.handleAction = async (id, reqTotal, adsPerStep) => {
             console.error('Video link fetch failed:', err);
         }
         if (video) {
-            targetLink = video.bot_deep_link || video.download_link || video.delivery_bot_link || video.mini_app_link || '';
+            // IMPORTANT: mini_app_link is the Mini App single-page link.
+            // WATCH NOW must NOT open that link again. For User Admin videos
+            // the bot_deep_link/download_link contains the exact Telegram
+            // message id (/start=message_id) for this video.
+            targetLink = video.bot_deep_link || video.download_link || video.delivery_bot_link || '';
+
+            // Legacy records: if the exact Bot link is missing but the
+            // Telegram message id was saved, rebuild the exact delivery link.
+            if (!targetLink && video.telegram_message_id) {
+                const botBase = String(settings.delivery_bot_link || settings.delivery_bot || 'https://t.me/Enjoy_01_bot').replace(/\/$/, '');
+                targetLink = `${botBase}?start=${encodeURIComponent(video.telegram_message_id)}`;
+            }
         }
-        if (!targetLink) { showToast("ভিডিওর Telegram link পাওয়া যায়নি!"); return; }
+        if (!targetLink) { showToast("এই ভিডিওর Telegram Bot delivery link পাওয়া যায়নি!"); return; }
         localStorage.removeItem('p_' + id);
         renderCards();
         renderSingleIfActive();
