@@ -406,45 +406,110 @@ function createCard(v) {
 window.handleAction = async (id, reqTotal, adsPerStep) => {
     if (window.activeCooldown > 0) return;
     const count = getProgress(id);
-    if(count >= reqTotal) {
-        let video = allVideos.find(v => v.id === id);
-        let targetLink = '';
+
+    // IMPORTANT:
+    // When the video is unlocked, WATCH NOW must leave the Main User
+    // Single Page and open the Telegram BOT for this exact video.
+    // The bot expects /start=<Telegram channel message_id>.
+    if (count >= reqTotal) {
+        let video = allVideos.find(v => v.id === id) || { id };
+
+        // Refresh this video's Firebase record so newly-saved Telegram fields
+        // are available even if the page was opened before the upload finished.
         try {
             const snap = await get(ref(db, `videos/${id}`));
             if (snap.exists()) video = { id, ...snap.val() };
         } catch (err) {
-            console.error('Video link fetch failed:', err);
+            console.warn('Could not refresh video before Watch Now:', err);
         }
-        if (video) {
-            // IMPORTANT: mini_app_link is the Mini App single-page link.
-            // WATCH NOW must NOT open that link again. For User Admin videos
-            // the bot_deep_link/download_link contains the exact Telegram
-            // message id (/start=message_id) for this video.
-            targetLink = video.bot_deep_link || video.download_link || video.delivery_bot_link || '';
 
-            // Legacy records: if the exact Bot link is missing but the
-            // Telegram message id was saved, rebuild the exact delivery link.
-            if (!targetLink && video.telegram_message_id) {
-                const botBase = String(settings.delivery_bot_link || settings.delivery_bot || 'https://t.me/Enjoy_01_bot').replace(/\/$/, '');
-                targetLink = `${botBase}?start=${encodeURIComponent(video.telegram_message_id)}`;
-            }
+        let targetLink = '';
+
+        // 1) Most reliable: the Telegram channel message ID created by
+        // User Admin. The Bot uses this exact ID to copy the video.
+        const messageId = video.telegram_message_id || video.message_id || '';
+        if (messageId) {
+            let botBase = String(
+                settings.bot_app_link ||
+                settings.delivery_bot_link ||
+                settings.delivery_bot ||
+                video.bot_deep_link ||
+                'https://t.me/Enjoy_01_bot'
+            ).trim();
+
+            // Convert a saved Bot/Mini-App URL to a clean bot username URL.
+            // Remove old start/startapp parameters so the current video's
+            // message_id is the ONLY target parameter.
+            botBase = botBase.replace(/([?&])startapp=[^&]*/i, '');
+            botBase = botBase.replace(/([?&])start=[^&]*/i, '');
+            botBase = botBase.replace(/[?&]$/, '').replace(/\/$/, '');
+            targetLink = `${botBase}?start=${encodeURIComponent(String(messageId))}`;
         }
-        if (!targetLink) { showToast("এই ভিডিওর Telegram Bot delivery link পাওয়া যায়নি!"); return; }
+
+        // 2) Exact Bot link already stored on this video.
+        if (!targetLink && video.bot_deep_link && /[?&]start=/i.test(String(video.bot_deep_link))) {
+            targetLink = String(video.bot_deep_link);
+        }
+        if (!targetLink && video.delivery_bot_link && /[?&]start=/i.test(String(video.delivery_bot_link))) {
+            targetLink = String(video.delivery_bot_link);
+        }
+
+        // 3) Older records: only accept download_link when it is a Telegram
+        // Bot /start link. Never open an old Mini App link from WATCH NOW.
+        if (!targetLink && video.download_link && /t\.me\//i.test(String(video.download_link)) && /[?&]start=/i.test(String(video.download_link))) {
+            targetLink = String(video.download_link);
+        }
+
+        if (!targetLink) {
+            showToast('এই ভিডিওর Telegram Bot delivery link পাওয়া যায়নি!');
+            return;
+        }
+
+        console.log('WATCH NOW ->', targetLink);
+
+        // Remove this local unlock progress only after we have a valid target.
+        // This keeps the video unlocked if the target link is missing.
         localStorage.removeItem('p_' + id);
         renderCards();
         renderSingleIfActive();
+
+        // Leave the Single Page before opening Telegram.
         try {
-            if (window.Telegram?.WebApp?.openTelegramLink) window.Telegram.WebApp.openTelegramLink(targetLink);
-            else window.open(targetLink, '_blank');
+            if (document.getElementById('singleView')?.classList.contains('active')) {
+                closeSingle();
+            }
         } catch (err) {
-            console.error('Open Telegram video link failed:', err);
-            window.open(targetLink, '_blank');
+            console.warn('Could not close Single Page:', err);
+        }
+
+        // Telegram Mini App -> open the Bot directly.
+        try {
+            if (window.Telegram?.WebApp?.openTelegramLink) {
+                window.Telegram.WebApp.openTelegramLink(targetLink);
+                return;
+            }
+        } catch (err) {
+            console.warn('Telegram openTelegramLink failed:', err);
+        }
+
+        // Normal browser fallback.
+        try {
+            window.location.href = targetLink;
+        } catch (err) {
+            window.open(targetLink, '_blank', 'noopener,noreferrer');
         }
         return;
     }
-    if(userDailyAds.count >= (settings.ads_limit||20)) { showToast("Daily limit reached!"); return; }
-    if(adsgramIds.length === 0) { alert("Admin: Add Adsgram IDs"); return; }
-    showOverlay("Processing...");
+
+    if (userDailyAds.count >= (settings.ads_limit || 20)) {
+        showToast('Daily limit reached!');
+        return;
+    }
+    if (adsgramIds.length === 0) {
+        alert('Admin: Add Adsgram IDs');
+        return;
+    }
+    showOverlay('Processing...');
     playAdStep(0, adsPerStep, id, reqTotal);
 };
 
