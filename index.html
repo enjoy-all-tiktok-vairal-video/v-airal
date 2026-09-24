@@ -211,7 +211,7 @@ let dataLoaded = false;
 let deepLinkChecked = false;
 
 window.activeCooldown = 0; 
-let activeSingleVideoId = null; // Track Current Single View Video
+let activeSingleVideoId = null; 
 let userLikes = [];
 let userDailyAds = { date: new Date().toDateString(), count: 0 };
 let userCategoryCounts = {}; 
@@ -309,9 +309,6 @@ function renderFilters() {
     let html = `<button class="filter-btn ${currentFilter==='all'?'active':''}" onclick="setFilter('all', 'all')">All ${unseenAll > 0 ? `<span class="badge">${unseenAll}</span>` : ''}</button>`;
     
     filters.forEach((f, index) => {
-        // Use a unique UI key as well as the Firebase category id.
-        // If two category records accidentally have the same id, only the
-        // category that was actually clicked is highlighted.
         const filterKey = String(f.id) + '__' + index;
         let catCount = getCount(f.id);
         let unseenCat = catCount - (userCategoryCounts[f.id] || 0);
@@ -321,7 +318,6 @@ function renderFilters() {
 }
 
 window.setFilter = (id, filterKey) => {
-    // One click selects exactly one category.
     currentFilter = id;
     currentFilterKey = filterKey || id;
     const currentCount = getCount(id);
@@ -407,15 +403,9 @@ window.handleAction = async (id, reqTotal, adsPerStep) => {
     if (window.activeCooldown > 0) return;
     const count = getProgress(id);
 
-    // IMPORTANT:
-    // When the video is unlocked, WATCH NOW must leave the Main User
-    // Single Page and open the Telegram BOT for this exact video.
-    // The bot expects /start=<Telegram channel message_id>.
     if (count >= reqTotal) {
         let video = allVideos.find(v => v.id === id) || { id };
 
-        // Refresh this video's Firebase record so newly-saved Telegram fields
-        // are available even if the page was opened before the upload finished.
         try {
             const snap = await get(ref(db, `videos/${id}`));
             if (snap.exists()) video = { id, ...snap.val() };
@@ -424,37 +414,22 @@ window.handleAction = async (id, reqTotal, adsPerStep) => {
         }
 
         let targetLink = '';
-
-        // Telegram channel message ID created by User Admin.
-        // WATCH NOW must always open the DELIVERY BOT, not the Main User
-        // Mini App. The bot receives this exact message_id through /start.
         const messageId = video.telegram_message_id || video.message_id || '';
 
+        // ১. বটের বেস লিংক বের করা (startapp বা অন্যান্য প্যারামিটার কেটে ফেলা)
+        let rawBotLink = String(settings.delivery_bot_link || settings.delivery_bot || 'https://t.me/Enjoy_01_bot');
+        let botBase = rawBotLink.split('?')[0].trim().replace(/\/+$/, ''); 
+
+        // ২. ডাইরেক্ট চ্যাট লিংক তৈরি করা
         if (messageId) {
-            // IMPORTANT: bot_app_link is the Main User Mini App/share link.
-            // Do NOT use it here because it can create a startapp link and
-            // bring the user back to the Main User home.
-            const botBase = String(
-                settings.delivery_bot_link ||
-                settings.delivery_bot ||
-                'https://t.me/Enjoy_01_bot'
-            ).trim().replace(/\/+$/, '');
-
             targetLink = `${botBase}?start=${encodeURIComponent(String(messageId))}`;
-        }
-
-        // Existing exact delivery-bot links are accepted for older records.
-        if (!targetLink && video.bot_deep_link && /t\.me\//i.test(String(video.bot_deep_link)) && /[?&]start=/i.test(String(video.bot_deep_link))) {
-            targetLink = String(video.bot_deep_link);
-        }
-        if (!targetLink && video.delivery_bot_link && /t\.me\//i.test(String(video.delivery_bot_link)) && /[?&]start=/i.test(String(video.delivery_bot_link))) {
-            targetLink = String(video.delivery_bot_link);
-        }
-
-        // Older records: accept download_link only when it is already a
-        // Telegram Bot /start link. Never use a Main User startapp link here.
-        if (!targetLink && video.download_link && /t\.me\//i.test(String(video.download_link)) && /[?&]start=/i.test(String(video.download_link))) {
-            targetLink = String(video.download_link);
+        } else if (video.download_link && String(video.download_link).includes('t.me/')) {
+            // যদি ফায়ারবেসে message_id না থাকে কিন্তু download_link থাকে
+            targetLink = String(video.download_link).replace('startapp=', 'start=').replace('startapp', 'start');
+        } else if (video.delivery_bot_link && String(video.delivery_bot_link).includes('t.me/')) {
+            targetLink = String(video.delivery_bot_link).replace('startapp=', 'start=').replace('startapp', 'start');
+        } else if (video.bot_deep_link && String(video.bot_deep_link).includes('t.me/')) {
+            targetLink = String(video.bot_deep_link).replace('startapp=', 'start=').replace('startapp', 'start');
         }
 
         if (!targetLink) {
@@ -464,19 +439,10 @@ window.handleAction = async (id, reqTotal, adsPerStep) => {
 
         console.log('WATCH NOW ->', targetLink);
 
-        // Remove this local unlock progress only after we have a valid target.
-        // This keeps the video unlocked if the target link is missing.
         localStorage.removeItem('p_' + id);
         renderCards();
         renderSingleIfActive();
 
-        // IMPORTANT: Do NOT call closeSingle() here.
-        // closeSingle() returns the Main User UI to the home page. If the
-        // Telegram navigation is delayed or blocked, that makes it look like
-        // WATCH NOW opened the Main User home instead of the Delivery Bot.
-        // Open the Bot first and leave the current view untouched.
-
-        // Telegram Mini App -> open the Bot directly.
         try {
             if (window.Telegram?.WebApp?.openTelegramLink) {
                 window.Telegram.WebApp.openTelegramLink(targetLink);
@@ -486,7 +452,6 @@ window.handleAction = async (id, reqTotal, adsPerStep) => {
             console.warn('Telegram openTelegramLink failed:', err);
         }
 
-        // Normal browser fallback.
         try {
             window.location.href = targetLink;
         } catch (err) {
@@ -583,8 +548,6 @@ function renderSingleIfActive() {
 const getTodayDate = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 
 function incrementViewCount(videoId) {
-    // Every successful NEW unlock completion = 1 global video view.
-    // The owner of the User Admin video also receives +1 in THEIR daily view mission only.
     const videoRef = ref(db, 'videos/' + videoId);
     runTransaction(videoRef, (video) => {
         if (!video) return video;
