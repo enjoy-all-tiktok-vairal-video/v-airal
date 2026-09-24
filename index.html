@@ -407,20 +407,13 @@ window.handleAction = async (id, reqTotal, adsPerStep) => {
     if (window.activeCooldown > 0) return;
     const count = getProgress(id);
 
-    // =========================================================
+    // =========================
     // WATCH NOW
-    // =========================================================
-    // Only change needed here:
-    // When unlocked, send the user to the DELIVERY BOT with the
-    // Telegram message_id of this exact video.
-    // Do not use bot_app_link, delivery_bot_link, download_link,
-    // Mini App links, or closeSingle() for WATCH NOW.
-    // =========================================================
+    // =========================
     if (count >= reqTotal) {
         let video = allVideos.find(v => v.id === id) || { id };
 
-        // Get the latest Firebase record so the message_id saved by
-        // User Admin is available even if this page was opened earlier.
+        // Keep the existing Firebase lookup so the latest Telegram message_id is used.
         try {
             const snap = await get(ref(db, `videos/${id}`));
             if (snap.exists()) {
@@ -430,49 +423,31 @@ window.handleAction = async (id, reqTotal, adsPerStep) => {
             console.warn('Could not refresh video before Watch Now:', err);
         }
 
-        // Telegram channel message ID created by the User Admin upload.
-        const messageId =
-            video.telegram_message_id ||
-            video.message_id ||
-            '';
+        const messageId = video.telegram_message_id || video.message_id || '';
 
         if (!messageId) {
-            console.error('WATCH NOW: Telegram message_id is missing.', video);
+            console.error('WATCH NOW: Telegram message_id is missing:', video);
             showToast('এই ভিডিওর Telegram message ID পাওয়া যায়নি!');
             return;
         }
 
-        // IMPORTANT:
-        // WATCH NOW must always target the delivery bot.
-        // The bot receives /start=<message_id> and sends the exact
-        // Telegram channel video to the user.
+        // Always open the FIXED DELIVERY BOT with this exact message_id.
+        // Do not use settings.bot_app_link here.
         const targetLink =
             `https://t.me/Enjoy_01_bot?start=${encodeURIComponent(String(messageId))}`;
 
         console.log('WATCH NOW -> DELIVERY BOT:', targetLink);
 
-        // Clear local unlock progress only after a valid Bot target exists.
-        localStorage.removeItem('p_' + id);
-
-        try {
-            renderCards();
-        } catch (err) {
-            console.warn('renderCards failed:', err);
-        }
-
-        try {
-            renderSingleIfActive();
-        } catch (err) {
-            console.warn('renderSingleIfActive failed:', err);
-        }
-
         // IMPORTANT:
-        // Do NOT call closeSingle() here.
-        // Telegram should receive the user directly from WATCH NOW.
-
-        // Telegram Mini App -> Delivery Bot.
+        // Do NOT remove p_id here.
+        // Do NOT render/close the page before Telegram opens.
+        // Otherwise the unlock state can return to UNLOCK if navigation fails.
         try {
-            if (window.Telegram?.WebApp?.openTelegramLink) {
+            if (
+                window.Telegram &&
+                window.Telegram.WebApp &&
+                typeof window.Telegram.WebApp.openTelegramLink === 'function'
+            ) {
                 window.Telegram.WebApp.openTelegramLink(targetLink);
                 return;
             }
@@ -480,32 +455,35 @@ window.handleAction = async (id, reqTotal, adsPerStep) => {
             console.warn('Telegram openTelegramLink failed:', err);
         }
 
-        // Fallback if Telegram WebApp API is unavailable.
+        // Browser fallback.
         try {
             window.location.href = targetLink;
+            return;
         } catch (err) {
-            console.warn('window.location failed:', err);
-            try {
-                window.open(targetLink, '_blank', 'noopener,noreferrer');
-            } catch (openErr) {
-                console.error('Could not open Delivery Bot:', openErr);
-            }
+            console.warn('Telegram link navigation failed:', err);
         }
 
+        try {
+            window.open(targetLink, '_blank', 'noopener,noreferrer');
+        } catch (err) {
+            console.error('Fallback open failed:', err);
+        }
         return;
     }
 
-    // =========================================================
-    // UNLOCK / ADS — ORIGINAL LOGIC
-    // =========================================================
+    // =========================
+    // UNLOCK / ADS
+    // =========================
     if (userDailyAds.count >= (settings.ads_limit || 20)) {
         showToast('Daily limit reached!');
         return;
     }
+
     if (adsgramIds.length === 0) {
         alert('Admin: Add Adsgram IDs');
         return;
     }
+
     showOverlay('Processing...');
     playAdStep(0, adsPerStep, id, reqTotal);
 };
